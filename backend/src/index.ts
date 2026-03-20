@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { serve } from '@hono/node-server';
 import { Scalar } from '@scalar/hono-api-reference';
+import { DrizzleQueryError } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { openAPIRouteHandler } from 'hono-openapi';
@@ -31,6 +32,24 @@ app.onError(async (err, c) => {
     );
   }
 
+  if (err instanceof DrizzleQueryError) {
+    //INFO: DrizzleQueryError: 23505 is the code for duplicate key in postgres
+    if (err.cause && 'detail' in err.cause && 'code' in err.cause && err.cause.code === '23505') {
+      console.error('Drizzle error \n', err.cause.detail);
+      console.error('Error code: ', err.cause.code);
+      const errMessage = err.cause.detail as string;
+
+      const [, key, value] = errMessage.match(/Key \((\w+)\)=\(([^)]+)\)/) || [];
+
+      return c.json(
+        {
+          success: false,
+          message: value && key ? `Duplicate ${key}: ${value}` : 'Duplicate value',
+        },
+        409,
+      );
+    }
+  }
   if (err instanceof HTTPException) {
     const res = createErrorResopnse(err);
     return c.json(res, err.status);
