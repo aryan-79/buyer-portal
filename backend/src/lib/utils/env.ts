@@ -47,6 +47,13 @@ const envSchema = z.object({
   COOKIE_DOMAIN: z.string(),
   ADMIN_PASSWORD: z.string().min(8, 'Password must be at least 8 characters'),
   ADMIN_EMAIL: z.email(),
+  ALLOWED_ORIGINS: z.preprocess((val) => {
+    if (typeof val === 'string') {
+      const urls = val.split(',').map((url) => url.trim());
+      return urls;
+    }
+    return val;
+  }, z.array(z.url())),
 });
 
 export type Env = z.infer<typeof envSchema>;

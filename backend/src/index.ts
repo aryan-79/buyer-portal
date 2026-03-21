@@ -16,7 +16,7 @@ const app = new Hono();
 
 app.use(
   cors({
-    origin: '*',
+    origin: env.ALLOWED_ORIGINS,
     credentials: true,
   }),
 );
