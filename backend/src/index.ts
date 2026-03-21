@@ -9,6 +9,7 @@ import { ZodError } from 'zod';
 import { env } from './lib/utils/env';
 import { createErrorResopnse } from './lib/utils/response';
 import authRoutes from './routes/auth.routes';
+import propertiesRoutes from './routes/properties.routes';
 
 const app = new Hono();
 
@@ -65,6 +66,7 @@ app.onError(async (err, c) => {
 });
 
 app.route('/api', authRoutes);
+app.route('/api', propertiesRoutes);
 
 app.get(
   '/openapi.json',

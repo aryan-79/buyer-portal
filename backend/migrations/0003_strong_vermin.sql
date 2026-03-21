@@ -1,0 +1,1 @@
+ALTER TABLE "properties" ALTER COLUMN "area" SET DATA TYPE numeric(8, 2);

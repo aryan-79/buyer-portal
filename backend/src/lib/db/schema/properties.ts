@@ -9,10 +9,15 @@ export const properties = pgTable(
     title: text('title').notNull(),
     description: text('description').notNull(),
 
-    price: numeric({ precision: 15, scale: 2 }).notNull(),
+    price: numeric({ precision: 15, scale: 2, mode: 'number' }).notNull(),
     currency: varchar('currency', { length: 3 }).notNull(),
 
-    area: integer('area'),
+    area: numeric({
+      precision: 8,
+      scale: 2,
+      mode: 'number',
+    }),
+
     address: text('address').notNull(),
     city: text('city').notNull(),
     country: text('country').notNull(),
