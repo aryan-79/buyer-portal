@@ -1,6 +1,7 @@
-import { and, eq, gt, ilike, lt, or } from 'drizzle-orm';
+import { and, eq, gt, ilike, lt, or, sql } from 'drizzle-orm';
+import { HTTPException } from 'hono/http-exception';
 import db from '@/lib/db';
-import { properties } from '@/lib/db/schema';
+import { favourites, properties } from '@/lib/db/schema';
 import type { CreatePropertyInput, PropertyQuery } from '@/lib/schemas/properties.schema';
 import { getOffset } from '@/lib/utils/pagination';
 
@@ -39,4 +40,94 @@ export async function getProperties({ page, limit, ...query }: PropertyQuery) {
   const total = await db.$count(properties, filters);
 
   return { properties: results, total };
+}
+
+export async function updateFavourite(userId: string, propertyId: string, action: 'add' | 'remove') {
+  return await db.transaction(async (tx) => {
+    const isAdd = action === 'add';
+
+    const [favourite] = isAdd
+      ? await tx.insert(favourites).values({ userId, propertyId }).returning()
+      : await tx
+          .delete(favourites)
+          .where(and(eq(favourites.userId, userId), eq(favourites.propertyId, propertyId)))
+          .returning();
+
+    if (!favourite) throw new HTTPException(404, { message: 'Favourite not found' });
+
+    const [{ favouriteCount }] = await tx
+      .update(properties)
+      .set({ favouriteCount: sql`${properties.favouriteCount} ${isAdd ? sql`+ 1` : sql`- 1`}` })
+      .where(eq(properties.id, propertyId))
+      .returning({ favouriteCount: properties.favouriteCount });
+
+    return {
+      propertyId: favourite.propertyId,
+      favouritedAt: favourite.favouritedAt,
+      favouriteCount,
+    };
+  });
+}
+
+export async function getPropertyById(propertyId: string) {
+  const property = await db.query.properties.findFirst({
+    where: eq(properties.id, propertyId),
+    columns: {
+      ownerId: false,
+    },
+  });
+
+  if (!property) {
+    throw new HTTPException(404, {
+      message: 'Property not found',
+    });
+  }
+
+  return property;
+}
+
+export async function getFavourites(userId: string, { page, limit, ...query }: PropertyQuery) {
+  const filters = and(
+    eq(favourites.userId, userId),
+    query.minPrice ? gt(properties.price, query.minPrice) : undefined,
+    query.maxPrice ? lt(properties.price, query.maxPrice) : undefined,
+    query.bedroom ? eq(properties.bedroom, query.bedroom) : undefined,
+    query.search
+      ? or(
+          ilike(properties.title, `%${query.search}%`),
+          ilike(properties.city, `%${query.search}%`),
+          ilike(properties.country, `%${query.search}%`),
+        )
+      : undefined,
+  );
+
+  const results = await db
+    .select({
+      id: favourites.id,
+      favouritedAt: favourites.favouritedAt,
+      property: {
+        id: properties.id,
+        title: properties.title,
+        description: properties.description,
+        price: properties.price,
+        currency: properties.currency,
+        area: properties.area,
+        address: properties.address,
+        city: properties.city,
+        country: properties.country,
+        bedroom: properties.bedroom,
+        kitchen: properties.kitchen,
+        bathroom: properties.bathroom,
+        livingroom: properties.livingroom,
+        favouriteCount: properties.favouriteCount,
+        listedAt: properties.listedAt,
+        updatedAt: properties.updatedAt,
+      },
+    })
+    .from(favourites)
+    .innerJoin(properties, eq(favourites.propertyId, properties.id))
+    .where(filters);
+  const total = await db.$count(favourites, filters);
+
+  return { favourites: results, total };
 }

@@ -3,6 +3,7 @@ import { serve } from '@hono/node-server';
 import { Scalar } from '@scalar/hono-api-reference';
 import { DrizzleQueryError } from 'drizzle-orm';
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import { HTTPException } from 'hono/http-exception';
 import { openAPIRouteHandler } from 'hono-openapi';
 import { ZodError } from 'zod';
@@ -12,6 +13,13 @@ import authRoutes from './routes/auth.routes';
 import propertiesRoutes from './routes/properties.routes';
 
 const app = new Hono();
+
+app.use(
+  cors({
+    origin: '*',
+    credentials: true,
+  }),
+);
 
 app.onError(async (err, c) => {
   console.error('error: ', err);

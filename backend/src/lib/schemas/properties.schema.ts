@@ -1,5 +1,5 @@
 import z from 'zod';
-import { createPaginatedSuccessReponseSchema } from '../utils/pagination';
+import { basePaginationSchema, createPaginatedSuccessReponseSchema } from './pagination.schema';
 
 const propertyBaseSchema = z.object({
   title: z.string({ error: 'Title is required' }).min(3).max(255),
@@ -35,16 +35,29 @@ export const propertyIdSchema = z.object({
   id: z.uuid('Invalid property ID'),
 });
 
-export const propertyQuerySchema = z.object({
+export const propertyQuerySchema = basePaginationSchema.extend({
   minPrice: z.coerce.number().positive().optional(),
   maxPrice: z.coerce.number().positive().optional(),
   bedroom: z.coerce.number().int().min(0).optional(),
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
   search: z.string().optional(),
 });
 
 export const getPropertiesSchema = createPaginatedSuccessReponseSchema(z.array(createPropertySchema), 'properties');
+
+export const propertyResponseSchema = createPropertySchema.extend({
+  id: z.uuid(),
+  favouriteCount: z.number().default(0),
+  listedAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+});
+
+export const addFavouriteResponseSchema = z.object({
+  propertyId: z.uuid(),
+  favouritedAt: z.iso.datetime(),
+  favouriteCount: z.number().int(),
+});
+
+export const removeFavouriteResonseSchema = addFavouriteResponseSchema;
 
 export type CreatePropertyInput = z.infer<typeof createPropertySchema>;
 export type UpdatePropertyInput = z.infer<typeof updatePropertySchema>;
