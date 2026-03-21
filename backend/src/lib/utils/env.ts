@@ -16,7 +16,7 @@ function parseDuration(duration: string): number {
 }
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(['production', 'development']),
+  NODE_ENV: z.enum(['production', 'development']).default('development'),
   DATABASE_URL: z.url(),
   PORT: z.coerce.number(),
   JWT_SECRET: z.string(),
@@ -45,6 +45,8 @@ const envSchema = z.object({
     }
   }),
   COOKIE_DOMAIN: z.string(),
+  ADMIN_PASSWORD: z.string().min(8, 'Password must be at least 8 characters'),
+  ADMIN_EMAIL: z.email(),
 });
 
 export type Env = z.infer<typeof envSchema>;
