@@ -4,6 +4,9 @@ export const ROLES = ['user', 'admin'] as const;
 
 const isProduction = env.NODE_ENV === 'production';
 
+export const ACCESS_TOKEN_COOKIE_NAME = 'access_token';
+export const REFRESH_TOKEN_COOKIE_NAME = 'refresh_token';
+
 const COOKIE_CONFIG_BASE = {
   httpOnly: true,
   secure: isProduction,
@@ -19,6 +22,6 @@ export const ACCESS_TOKEN_COOKIE_CONFG = {
 
 export const REFRESH_TOKEN_COOKIE_CONFG = {
   ...COOKIE_CONFIG_BASE,
-  path: '/auth/refresh', // sends cookie for this path only
+  path: '/api/auth/refresh', // sends cookie for this path only
   maxAge: env.REFRESH_TOKEN_EXPIRY_TIME / 1000, // in seconds
 };

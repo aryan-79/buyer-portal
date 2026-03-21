@@ -1,6 +1,6 @@
 import { responseSpec } from '@/lib/utils/openapi';
 
-export const UNAUTHORIZED_MESSAGE = 'Unuathorized. Please login first';
+export const UNAUTHORIZED_MESSAGE = 'Not logged in. Please login first';
 export const FORBIDDEN_MESSAGE = "You don't have required permission to perform this action";
 export const INVALID_INPUT_MESSAGE = 'Invalid data received';
 

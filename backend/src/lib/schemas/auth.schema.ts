@@ -36,3 +36,15 @@ export const loginResponseSchema = z.object({
   email: z.email(),
   image: z.url().optional(),
 });
+
+export const sessionResponseSchema = z.object({
+  id: z.uuid(),
+  fullName: z.string(),
+  role: z.enum(ROLES),
+  email: z.email(),
+  image: z.url().optional(),
+});
+
+export const refreshResponseSchema = z.object({
+  message: z.string(),
+});
