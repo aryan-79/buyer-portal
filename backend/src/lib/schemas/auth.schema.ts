@@ -6,7 +6,7 @@ export const signupSchema = z.object({
     .string()
     .min(2, 'Full name must be at least 2 characters long')
     .max(40, 'Full name must be at most 40 characters long'),
-
+  image: z.url().optional(),
   email: z.email(),
   password: z.string().min(8, 'Password must be at least 8 characters'),
 });
@@ -17,6 +17,7 @@ export const signupResponseSchema = z.object({
   id: z.uuid(),
   fullName: z.string(),
   email: z.email(),
+  image: z.url().optional(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
 });
@@ -33,4 +34,5 @@ export const loginResponseSchema = z.object({
   fullName: z.string(),
   role: z.enum(ROLES),
   email: z.email(),
+  image: z.url().optional(),
 });
