@@ -73,8 +73,8 @@ app.onError(async (err, c) => {
   );
 });
 
-app.route('/api', authRoutes);
-app.route('/api', propertiesRoutes);
+app.route('/', authRoutes);
+app.route('/', propertiesRoutes);
 
 app.get(
   '/openapi.json',
