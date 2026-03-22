@@ -1,6 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
 @import "@fontsource-variable/jetbrains-mono";
 
 @custom-variant dark (&:is(.dark *));
@@ -50,22 +48,22 @@
 
 :root {
   --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --foreground: oklch(0.1261 0.038 174.45);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
+  --primary: oklch(0.2624 0.038 174.45);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.9542 0.018 214.39);
+  --secondary-foreground: oklch(0.2624 0.038 174.45);
+  --muted: oklch(0.9724 0.011 214.39);
+  --muted-foreground: oklch(0.45 0.02 214);
+  --accent: oklch(0.5834 0.161 161.45);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  --input: oklch(0.5 0 0);
   --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
@@ -81,6 +79,7 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --spacing: 0.35rem;
 }
 
 .dark {
@@ -129,3 +128,6 @@
   }
 }
 
+@utility container {
+  margin-inline: auto;
+}

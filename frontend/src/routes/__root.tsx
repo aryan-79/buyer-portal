@@ -6,6 +6,7 @@ import appCss from '../styles.css?url';
 import type { QueryClient } from '@tanstack/react-query';
 import TanStackQueryProvider from '@/integrations/tanstack-query/provider';
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
+import { Toaster } from 'sonner';
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -41,7 +42,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className='min-h-svh flex flex-col'>
         <TanStackQueryProvider>
           {children}
           <TanStackDevtools
@@ -56,6 +57,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               TanStackQueryDevtools,
             ]}
           />
+          <Toaster richColors />
         </TanStackQueryProvider>
         <Scripts />
       </body>

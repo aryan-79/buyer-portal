@@ -1,34 +1,18 @@
+import { fetchGetProperties } from '@/lib/queries/query-components';
 import { type QueryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { env } from '@/lib/env';
 
 const queryOptions = {
-  queryKey: ['test'],
+  queryKey: ['properties'],
   queryFn: async () => {
-    const isServer = typeof window === 'undefined';
-
-    const apiUrl = isServer ? env.API_URL : env.VITE_API_URL;
-
-    const res = await fetch(`${apiUrl}/api/properties`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-
-    if (!res.ok) {
-      throw new Error('Failed');
-    }
-
-    const data = await res.json();
-
-    console.log('data: ', data);
-
+    const { data } = await fetchGetProperties({});
     return data;
   },
 } satisfies QueryOptions;
 
 export const Route = createFileRoute('/admin/')({
   loader: async ({ context }) => {
-    const data = context.queryClient.ensureQueryData(queryOptions);
+    const data = await context.queryClient.ensureQueryData(queryOptions);
 
     return data;
   },

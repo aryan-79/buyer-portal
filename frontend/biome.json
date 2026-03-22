@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "includes": ["**", "!node_modules", "!**/dist/*", "!**/routeTree.gen.ts", "!pnpm-lock.yaml", "!**/generated/*"]
+    "includes": ["**", "!node_modules", "!**/dist/*", "!**/routeTree.gen.ts", "!pnpm-lock.yaml", "!**/queries/*"]
   },
   "linter": {
     "enabled": true,
