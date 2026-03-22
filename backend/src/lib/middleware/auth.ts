@@ -1,7 +1,7 @@
 import { deleteCookie, getCookie } from 'hono/cookie';
 import { createMiddleware } from 'hono/factory';
 import { HTTPException } from 'hono/http-exception';
-import { UNAUTHORIZED_MESSAGE } from '@/docs/error.docs';
+import { FORBIDDEN_MESSAGE, TOKEN_INVALID_MESSAGE, UNAUTHORIZED_MESSAGE } from '@/docs/error.docs';
 import { ACCESS_TOKEN_COOKIE_NAME, type ROLES } from '../constants';
 import { type TokenPayload, validateJWT } from '../utils/jwt';
 
@@ -16,14 +16,10 @@ export const authorizationMiddleware = (options?: AuthorizationMiddlewareOptions
 
     const accessToken = getCookie(c, ACCESS_TOKEN_COOKIE_NAME);
 
-    const throwUnauthenticated = () => {
+    if (requireAuthentication && !accessToken) {
       throw new HTTPException(401, {
         message: UNAUTHORIZED_MESSAGE,
       });
-    };
-
-    if (requireAuthentication && !accessToken) {
-      throwUnauthenticated();
     }
 
     if (accessToken) {
@@ -33,7 +29,9 @@ export const authorizationMiddleware = (options?: AuthorizationMiddlewareOptions
 
       if (!decoded) {
         deleteCookie(c, ACCESS_TOKEN_COOKIE_NAME);
-        throwUnauthenticated();
+        throw new HTTPException(403, {
+          message: TOKEN_INVALID_MESSAGE,
+        });
       }
     }
 
@@ -41,7 +39,7 @@ export const authorizationMiddleware = (options?: AuthorizationMiddlewareOptions
       const user = c.get('user');
       if (!user || !roles.includes(user.role)) {
         throw new HTTPException(403, {
-          message: 'You dont have permission to access this resource',
+          message: FORBIDDEN_MESSAGE,
         });
       }
     }

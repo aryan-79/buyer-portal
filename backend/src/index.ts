@@ -50,12 +50,14 @@ app.onError(async (err, c) => {
 
       const [, key, value] = errMessage.match(/Key \((\w+)\)=\(([^)]+)\)/) || [];
 
+      console.error(value && key ? `Duplicate ${key}: ${value}` : 'Duplicate value');
+
       return c.json(
         {
           success: false,
-          message: value && key ? `Duplicate ${key}: ${value}` : 'Duplicate value',
+          message: 'Something went wrong',
         },
-        409,
+        500,
       );
     }
   }

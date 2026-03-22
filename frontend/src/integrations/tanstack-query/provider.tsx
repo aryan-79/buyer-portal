@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { ReactNode } from 'react';
 
 let context:
   | {
@@ -20,7 +20,7 @@ export function getContext() {
         staleTime: 5000 * 60,
       },
       mutations: {
-        retry: 3,
+        retry: 2,
       },
     },
   });

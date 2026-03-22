@@ -4,13 +4,13 @@ import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod/v4';
 import propertyImage from '@/assets/real-estate.jpg';
-import { usePostAuthLogin } from '@/lib/queries/query-components';
+import { usePostAuthSignup } from '@/lib/queries/query-components';
 import Logo from '../logo';
 import { Button } from '../ui/button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '../ui/field';
 import { Input, PasswordInput } from '../ui/input';
 
-export default function LoginFormPage() {
+export default function SignupPage() {
   return (
     <div className='flex-1 flex items-center'>
       <div className='grid gap-4 md:grid-cols-2 container w-full'>
@@ -27,19 +27,19 @@ export default function LoginFormPage() {
 
           <div className='space-y-6'>
             <div className='space-y-2'>
-              <h2 className='font-semibold text-4xl md:text-6xl'>Welcome</h2>
+              <h2 className='font-semibold text-4xl md:text-6xl'>Create Account</h2>
               <p className='text-muted-foreground text-xl md:text-2xl leading-tight'>
-                Please enter your credentials to manage your portfolio.
+                Fill the details below to create your account.
               </p>
             </div>
 
             <div className='space-y-6'>
-              <LoginForm />
+              <SignupForm />
 
               <p className='text-center'>
-                Don&apos;t have an account?{' '}
-                <Link to='/signup' className='text-accent'>
-                  Signup
+                Already have an account?{' '}
+                <Link to='/login' className='text-accent'>
+                  Login
                 </Link>
               </p>
             </div>
@@ -50,30 +50,39 @@ export default function LoginFormPage() {
   );
 }
 
-const loginSchema = z.object({
-  email: z.email({ error: 'Invalid email' }),
-  password: z.string().min(8, 'Password length must be at least 8 characters long'),
-});
+const signupSchema = z
+  .object({
+    fullName: z.string().min(2, 'Full name must be at least 2 characters'),
+    email: z.email({ error: 'Invalid email' }),
+    password: z.string().min(8, 'Password length must be at least 8 characters long'),
+    confirmPassword: z.string(),
+  })
+  .refine((ctx) => ctx.password === ctx.confirmPassword, {
+    error: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 
-type LoginValues = z.infer<typeof loginSchema>;
+type SignupValues = z.infer<typeof signupSchema>;
 
-function LoginForm() {
-  const form = useForm<LoginValues>({
+function SignupForm() {
+  const form = useForm<SignupValues>({
     mode: 'onChange',
-    resolver: standardSchemaResolver(loginSchema),
+    resolver: standardSchemaResolver(signupSchema),
     defaultValues: {
+      fullName: '',
       email: '',
       password: '',
+      confirmPassword: '',
     },
   });
 
   const navigate = useNavigate();
 
-  const { mutate: login, isPending } = usePostAuthLogin({
+  const { mutate: signup, isPending } = usePostAuthSignup({
     onSuccess: (data) => {
       toast.success(data.message);
       navigate({
-        to: '/',
+        to: '/login',
       });
     },
     onError: (err) => {
@@ -87,13 +96,32 @@ function LoginForm() {
 
   return (
     <form
-      onSubmit={form.handleSubmit((values) => {
-        login({
+      onSubmit={form.handleSubmit(({ confirmPassword: _, ...values }) => {
+        signup({
           body: values,
         });
       })}
       className='space-y-4'
     >
+      <FieldGroup>
+        <Controller
+          control={form.control}
+          name='fullName'
+          render={({ field, fieldState }) => {
+            return (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name} className='uppercase'>
+                  Full Name
+                </FieldLabel>
+
+                <Input {...field} placeholder='John Doe' />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            );
+          }}
+        />
+      </FieldGroup>
+
       <FieldGroup>
         <Controller
           control={form.control}
@@ -125,6 +153,25 @@ function LoginForm() {
                 </FieldLabel>
 
                 <PasswordInput {...field} placeholder='Enter your password' />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            );
+          }}
+        />
+      </FieldGroup>
+
+      <FieldGroup>
+        <Controller
+          control={form.control}
+          name='confirmPassword'
+          render={({ field, fieldState }) => {
+            return (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name} className='uppercase'>
+                  Confirm Password
+                </FieldLabel>
+
+                <PasswordInput {...field} placeholder='Re-enter your password' />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             );

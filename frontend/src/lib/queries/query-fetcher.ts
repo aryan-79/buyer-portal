@@ -1,13 +1,13 @@
-import { env } from "../env";
-import type { QueryContext } from "./query-context";
+import { env } from '../env';
+import type { QueryContext } from './query-context';
+
+const TOKEN_INVALID_MESSAGE = 'Invalid or expired token';
 
 const isServer = typeof window === 'undefined';
 
 const baseUrl = isServer ? env.API_URL : env.VITE_API_URL;
 
-export type ErrorWrapper<TError> =
-  | TError
-  | { status: "unknown"; payload: string };
+export type ErrorWrapper<TError> = TError | Error;
 
 export type QueryFetcherOptions<TBody, THeaders, TQueryParams, TPathParams> = {
   url: string;
@@ -17,7 +17,7 @@ export type QueryFetcherOptions<TBody, THeaders, TQueryParams, TPathParams> = {
   queryParams?: TQueryParams;
   pathParams?: TPathParams;
   signal?: AbortSignal;
-} & QueryContext["fetcherOptions"];
+} & QueryContext['fetcherOptions'];
 
 export async function queryFetch<
   TData,
@@ -34,16 +34,11 @@ export async function queryFetch<
   pathParams,
   queryParams,
   signal,
-}: QueryFetcherOptions<
-  TBody,
-  THeaders,
-  TQueryParams,
-  TPathParams
->): Promise<TData> {
-  let error: ErrorWrapper<TError>;
+}: QueryFetcherOptions<TBody, THeaders, TQueryParams, TPathParams>): Promise<TData> {
+  let error: TError;
   try {
     const requestHeaders: HeadersInit = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       ...headers,
     };
 
@@ -53,40 +48,33 @@ export async function queryFetch<
      * the correct boundary.
      * https://developer.mozilla.org/en-US/docs/Web/API/FormData/Using_FormData_Objects#sending_files_using_a_formdata_object
      */
-    if (
-      requestHeaders["Content-Type"]
-        ?.toLowerCase()
-        .includes("multipart/form-data")
-    ) {
-      delete requestHeaders["Content-Type"];
+    if (requestHeaders['Content-Type']?.toLowerCase().includes('multipart/form-data')) {
+      delete requestHeaders['Content-Type'];
     }
 
-    const response = await fetch(
-      `${baseUrl}${resolveUrl(url, queryParams, pathParams)}`,
-      {
-        signal,
-        method: method.toUpperCase(),
-        body: body
-          ? body instanceof FormData
-            ? body
-            : JSON.stringify(body)
-          : undefined,
-        headers: requestHeaders,
-      },
-    );
+    const response = await fetch(`${baseUrl}${resolveUrl(url, queryParams, pathParams)}`, {
+      signal,
+      method: method.toUpperCase(),
+      body: body ? (body instanceof FormData ? body : JSON.stringify(body)) : undefined,
+      headers: requestHeaders,
+    });
     if (!response.ok) {
       try {
-        error = await response.json();
+        const payload = await response.json();
+        error = {
+          status: response.status,
+          payload,
+        } as TError;
       } catch (e) {
         error = {
-          status: "unknown" as const,
-          payload:
-            e instanceof Error
-              ? `Unexpected error (${e.message})`
-              : "Unexpected error",
-        };
+          status: 500,
+          payload: {
+            success: false,
+            message: e instanceof Error ? `Unexpected error (${e.message})` : 'Unexpected error',
+          },
+        } as TError;
       }
-    } else if (response.headers.get("content-type")?.includes("json")) {
+    } else if (response.headers.get('content-type')?.includes('json')) {
       return await response.json();
     } else {
       // if it is not a json response, assume it is a blob and cast it to TData
@@ -94,24 +82,35 @@ export async function queryFetch<
     }
   } catch (e) {
     const errorObject: Error = {
-      name: "unknown" as const,
-      message:
-        e instanceof Error ? `Network error (${e.message})` : "Network error",
+      name: 'unknown' as const,
+      message: e instanceof Error ? `Network error (${e.message})` : 'Network error',
       stack: e as string,
     };
+
     throw errorObject;
   }
+
+  if (error) {
+    const e = error as any;
+    if (!url.startsWith('/auth')) {
+      if (e.status) {
+        if (e.status === 403 && e.message === TOKEN_INVALID_MESSAGE) {
+          const refreshUrl = new URL('/auth/refresh', baseUrl);
+          await fetch(refreshUrl.href, {
+            signal,
+            method: 'GET',
+            credentials: 'include',
+          });
+        }
+      }
+    }
+  }
+
   throw error;
 }
 
-const resolveUrl = (
-  url: string,
-  queryParams: Record<string, string> = {},
-  pathParams: Record<string, string> = {},
-) => {
+const resolveUrl = (url: string, queryParams: Record<string, string> = {}, pathParams: Record<string, string> = {}) => {
   let query = new URLSearchParams(queryParams).toString();
   if (query) query = `?${query}`;
-  return (
-    url.replace(/\{\w*\}/g, (key) => pathParams[key.slice(1, -1)] ?? "") + query
-  );
+  return url.replace(/\{\w*\}/g, (key) => pathParams[key.slice(1, -1)] ?? '') + query;
 };
