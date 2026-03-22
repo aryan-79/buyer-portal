@@ -33,6 +33,9 @@ export const properties = pgTable(
       onDelete: 'set null',
     }),
 
+    coverImage: text('cover_image').notNull(),
+    images: text('images').array(),
+
     listedAt: timestamp('listed_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at')
       .defaultNow()

@@ -29,6 +29,13 @@
       "when": 1774073310561,
       "tag": "0003_strong_vermin",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1774198189679,
+      "tag": "0004_legal_kree",
+      "breakpoints": true
     }
   ]
 }
