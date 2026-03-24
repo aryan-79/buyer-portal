@@ -63,18 +63,21 @@ export default function Navbar() {
         {session && (
           <DropdownMenu>
             <DropdownMenuTrigger
-              render={
-                <Avatar>
-                  <AvatarImage src={session.image} />
-                  <AvatarFallback className='uppercase'>{session.fullName.slice(0, 2)}</AvatarFallback>
-                </Avatar>
-              }
               nativeButton
+              render={
+                <button type='button' className='cursor-pointer'>
+                  <Avatar>
+                    <AvatarImage src={session.image} />
+                    <AvatarFallback className='uppercase'>{session.fullName.slice(0, 2)}</AvatarFallback>
+                  </Avatar>
+                </button>
+              }
             />
 
             <DropdownMenuContent align='end'>
               <DropdownMenuItem
                 className='w-full cursor-pointer hover:bg-muted focus:bg-muted'
+                nativeButton={true}
                 render={
                   <button
                     disabled={isPending}

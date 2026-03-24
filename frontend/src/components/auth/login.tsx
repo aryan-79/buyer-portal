@@ -4,6 +4,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod/v4';
 import propertyImage from '@/assets/real-estate.jpg';
+import { getContext } from '@/integrations/tanstack-query/provider';
 import { usePostAuthLogin } from '@/lib/queries/query-components';
 import Logo from '../logo';
 import { Button } from '../ui/button';
@@ -75,6 +76,7 @@ function LoginForm() {
       navigate({
         to: '/',
       });
+      getContext().queryClient.invalidateQueries();
     },
     onError: (err) => {
       if (err instanceof Error) {

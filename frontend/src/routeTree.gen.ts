@@ -16,6 +16,7 @@ import { Route as LayoutPropertyIdRouteImport } from './routes/_layout/$property
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as LayoutProtectedFavouritesRouteImport } from './routes/_layout/_protected/favourites'
+import { Route as LayoutAdminAdminRouteImport } from './routes/_layout/_admin/admin'
 
 const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
@@ -51,12 +52,18 @@ const LayoutProtectedFavouritesRoute =
     path: '/favourites',
     getParentRoute: () => LayoutProtectedRoute,
   } as any)
+const LayoutAdminAdminRoute = LayoutAdminAdminRouteImport.update({
+  id: '/_admin/admin',
+  path: '/admin',
+  getParentRoute: () => LayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof LayoutIndexRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/$propertyId': typeof LayoutPropertyIdRoute
+  '/admin': typeof LayoutAdminAdminRoute
   '/favourites': typeof LayoutProtectedFavouritesRoute
 }
 export interface FileRoutesByTo {
@@ -64,6 +71,7 @@ export interface FileRoutesByTo {
   '/signup': typeof AuthSignupRoute
   '/$propertyId': typeof LayoutPropertyIdRoute
   '/': typeof LayoutIndexRoute
+  '/admin': typeof LayoutAdminAdminRoute
   '/favourites': typeof LayoutProtectedFavouritesRoute
 }
 export interface FileRoutesById {
@@ -74,13 +82,20 @@ export interface FileRoutesById {
   '/_layout/$propertyId': typeof LayoutPropertyIdRoute
   '/_layout/_protected': typeof LayoutProtectedRouteWithChildren
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/_admin/admin': typeof LayoutAdminAdminRoute
   '/_layout/_protected/favourites': typeof LayoutProtectedFavouritesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/signup' | '/$propertyId' | '/favourites'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/$propertyId'
+    | '/admin'
+    | '/favourites'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/signup' | '/$propertyId' | '/' | '/favourites'
+  to: '/login' | '/signup' | '/$propertyId' | '/' | '/admin' | '/favourites'
   id:
     | '__root__'
     | '/_layout'
@@ -89,6 +104,7 @@ export interface FileRouteTypes {
     | '/_layout/$propertyId'
     | '/_layout/_protected'
     | '/_layout/'
+    | '/_layout/_admin/admin'
     | '/_layout/_protected/favourites'
   fileRoutesById: FileRoutesById
 }
@@ -149,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutProtectedFavouritesRouteImport
       parentRoute: typeof LayoutProtectedRoute
     }
+    '/_layout/_admin/admin': {
+      id: '/_layout/_admin/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof LayoutAdminAdminRouteImport
+      parentRoute: typeof LayoutRoute
+    }
   }
 }
 
@@ -168,12 +191,14 @@ interface LayoutRouteChildren {
   LayoutPropertyIdRoute: typeof LayoutPropertyIdRoute
   LayoutProtectedRoute: typeof LayoutProtectedRouteWithChildren
   LayoutIndexRoute: typeof LayoutIndexRoute
+  LayoutAdminAdminRoute: typeof LayoutAdminAdminRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutPropertyIdRoute: LayoutPropertyIdRoute,
   LayoutProtectedRoute: LayoutProtectedRouteWithChildren,
   LayoutIndexRoute: LayoutIndexRoute,
+  LayoutAdminAdminRoute: LayoutAdminAdminRoute,
 }
 
 const LayoutRouteWithChildren =
