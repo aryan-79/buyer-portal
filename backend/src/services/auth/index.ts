@@ -7,8 +7,8 @@ import { users } from '@/lib/db/schema';
 import type { LoginInput, SignupInput } from '@/lib/schemas/auth.schema';
 import {
   createSession,
-  getSession,
   deleteSession as deleteRedisSession,
+  getSession,
   type SessionCreatePayload,
 } from '@/lib/utils/session';
 

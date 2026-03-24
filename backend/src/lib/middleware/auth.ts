@@ -2,8 +2,8 @@ import { deleteCookie, getSignedCookie } from 'hono/cookie';
 import { createMiddleware } from 'hono/factory';
 import { HTTPException } from 'hono/http-exception';
 import { FORBIDDEN_MESSAGE, UNAUTHORIZED_MESSAGE } from '@/docs/error.docs';
-import { env } from '../utils/env';
 import { type ROLES, SESSION_COOKIE_NAME } from '../constants';
+import { env } from '../utils/env';
 import { getSession, type SessionPayload } from '../utils/session';
 
 type AuthorizationMiddlewareOptions = {

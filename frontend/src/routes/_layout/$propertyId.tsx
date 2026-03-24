@@ -1,8 +1,8 @@
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { fetchGetPropertiesByPropertyId } from '@/lib/queries/query-components';
 import { BathtubIcon, BedIcon, CookingPotIcon, CouchIcon } from '@phosphor-icons/react';
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { fetchGetPropertiesByPropertyId } from '@/lib/queries/query-components';
 
 const propertyDetailsOptions = (propertyId: string) =>
   queryOptions({

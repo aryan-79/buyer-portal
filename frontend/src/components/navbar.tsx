@@ -1,14 +1,14 @@
 import { HeartIcon } from '@phosphor-icons/react';
 import { getRouteApi, Link, useRouteContext, useRouter } from '@tanstack/react-router';
-import { useDebounceCallback } from '@/lib/hooks/use-debounce';
-import Logo from './logo';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
-import { usePostAuthLogout } from '@/lib/queries/query-components';
-import { defaultMutationOptions } from '@/lib/mutaiton-options';
 import { getContext } from '@/integrations/tanstack-query/provider';
+import { useDebounceCallback } from '@/lib/hooks/use-debounce';
+import { defaultMutationOptions } from '@/lib/mutaiton-options';
+import { usePostAuthLogout } from '@/lib/queries/query-components';
+import Logo from './logo';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Button } from './ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { Input } from './ui/input';
 
 const Route = getRouteApi('/_layout');
 
