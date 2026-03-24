@@ -1720,6 +1720,190 @@ export const useGetPropertiesByPropertyId = <
   });
 };
 
+export type DeletePropertiesByPropertyIdPathParams = {
+  propertyId: string;
+};
+
+export type DeletePropertiesByPropertyIdError = Fetcher.ErrorWrapper<
+  | {
+      status: 400;
+      payload: {
+        /**
+         * @default false
+         */
+        success?: boolean;
+        message: string;
+      };
+    }
+  | {
+      status: 401;
+      payload: {
+        /**
+         * @default false
+         */
+        success?: boolean;
+        message: string;
+      };
+    }
+  | {
+      status: 403;
+      payload: {
+        /**
+         * @default false
+         */
+        success?: boolean;
+        message: string;
+      };
+    }
+  | {
+      status: 500;
+      payload: {
+        /**
+         * @default false
+         */
+        success?: boolean;
+        message: string;
+      };
+    }
+>;
+
+export type DeletePropertiesByPropertyIdResponse = {
+  /**
+   * @default true
+   */
+  success?: boolean;
+  message: string;
+  data: {
+    /**
+     * @minLength 3
+     * @maxLength 255
+     */
+    title: string;
+    /**
+     * @minLength 10
+     */
+    description: string;
+    price: number;
+    /**
+     * @minLength 2
+     * @maxLength 3
+     */
+    currency: string;
+    area?: number;
+    /**
+     * @minLength 3
+     */
+    address: string;
+    /**
+     * @minLength 2
+     */
+    city: string;
+    /**
+     * @minLength 2
+     */
+    country: string;
+    /**
+     * @default 0
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+    bedroom?: number;
+    /**
+     * @default 0
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+    kitchen?: number;
+    /**
+     * @default 0
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+    bathroom?: number;
+    /**
+     * @default 0
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+    livingroom?: number;
+    /**
+     * @format uri
+     */
+    coverImage: string;
+    images?: string[];
+    /**
+     * @format uuid
+     * @pattern ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+     */
+    id: string;
+    /**
+     * @default 0
+     */
+    favouriteCount?: number;
+    /**
+     * @format date-time
+     * @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+     */
+    listedAt: string;
+    /**
+     * @format date-time
+     * @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+     */
+    updatedAt: string;
+    isFavourited: boolean;
+  };
+};
+
+export type DeletePropertiesByPropertyIdVariables = {
+  pathParams: DeletePropertiesByPropertyIdPathParams;
+} & QueryContext["fetcherOptions"];
+
+/**
+ * Delete property by ID
+ */
+export const fetchDeletePropertiesByPropertyId = (
+  variables: DeletePropertiesByPropertyIdVariables,
+  signal?: AbortSignal,
+) =>
+  queryFetch<
+    DeletePropertiesByPropertyIdResponse,
+    DeletePropertiesByPropertyIdError,
+    undefined,
+    {},
+    {},
+    DeletePropertiesByPropertyIdPathParams
+  >({
+    url: "/properties/{propertyId}",
+    method: "delete",
+    ...variables,
+    signal,
+  });
+
+/**
+ * Delete property by ID
+ */
+export const useDeletePropertiesByPropertyId = (
+  options?: Omit<
+    reactQuery.UseMutationOptions<
+      DeletePropertiesByPropertyIdResponse,
+      DeletePropertiesByPropertyIdError,
+      DeletePropertiesByPropertyIdVariables
+    >,
+    "mutationFn"
+  >,
+) => {
+  const { fetcherOptions } = useQueryContext();
+  return reactQuery.useMutation<
+    DeletePropertiesByPropertyIdResponse,
+    DeletePropertiesByPropertyIdError,
+    DeletePropertiesByPropertyIdVariables
+  >({
+    mutationFn: (variables: DeletePropertiesByPropertyIdVariables) =>
+      fetchDeletePropertiesByPropertyId(deepMerge(fetcherOptions, variables)),
+    ...options,
+  });
+};
+
 export type QueryOperation =
   | {
       path: "/auth/session";

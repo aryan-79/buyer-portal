@@ -1,8 +1,17 @@
-import { BathtubIcon, BedIcon, BuildingOfficeIcon, CookingPotIcon, CouchIcon, HeartIcon } from '@phosphor-icons/react';
-import { Link } from '@tanstack/react-router';
+import {
+  BathtubIcon,
+  BedIcon,
+  BuildingOfficeIcon,
+  CookingPotIcon,
+  CouchIcon,
+  HeartIcon,
+  TrashIcon,
+} from '@phosphor-icons/react';
+import { Link, useRouteContext } from '@tanstack/react-router';
 import { defaultMutationOptions } from '@/lib/mutaiton-options';
 import {
   type GetPropertiesByPropertyIdResponse,
+  useDeletePropertiesByPropertyId,
   useDeletePropertiesFavouritesByPropertyId,
   usePostPropertiesFavouritesByPropertyId,
 } from '@/lib/queries/query-components';
@@ -17,6 +26,7 @@ type PropertyCardProps = {
 };
 
 export default function PropertyCard({ property }: PropertyCardProps) {
+  const { session } = useRouteContext({ from: '__root__' });
   const features = [
     {
       name: 'Bedrooms',
@@ -56,6 +66,9 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           isFavourited={property.isFavourited}
           className='absolute z-10 top-2 right-2'
         />
+        {session && session.role === 'admin' && (
+          <DeleteProperty propertyId={property.id} className='absolute top-2 right-12' />
+        )}
       </div>
 
       <Link to='/$propertyId' params={{ propertyId: property.id }}>
@@ -151,6 +164,29 @@ function FavouriteButton({
       disabled={addingToFavourite || removingFromFavourite}
     >
       <HeartIcon weight={isFavourited ? 'fill' : 'regular'} className={cn(isFavourited && 'fill-pink-700')} />
+    </Button>
+  );
+}
+
+function DeleteProperty({ propertyId, className }: { propertyId: string; className?: string }) {
+  const { mutate: deleteProperty, isPending } = useDeletePropertiesByPropertyId(
+    defaultMutationOptions([['properties']]),
+  );
+  return (
+    <Button
+      variant='destructive'
+      className={cn('rounded-full bg-red-200', className)}
+      size='icon'
+      disabled={isPending}
+      onClick={() => {
+        deleteProperty({
+          pathParams: {
+            propertyId,
+          },
+        });
+      }}
+    >
+      <TrashIcon />
     </Button>
   );
 }
