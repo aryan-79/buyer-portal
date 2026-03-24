@@ -3,9 +3,10 @@ import z from 'zod';
 export function createPaginatedSuccessReponseSchema<T extends z.ZodType>(schema: T, fieldName: string) {
   return z.object({
     [fieldName]: schema,
-    page: z.number().default(1),
-    limit: z.number().default(10),
-    total: z.number().default(0),
+    page: z.number(),
+    limit: z.number(),
+    total: z.number(),
+    totalPages: z.number(),
   });
 }
 

@@ -2,10 +2,10 @@ import z, { ZodError } from 'zod';
 
 function parseDuration(duration: string): number {
   const units: Record<string, number> = {
-    s: 1000,
-    m: 60 * 1000,
-    h: 60 * 60 * 1000,
-    d: 24 * 60 * 60 * 1000,
+    s: 1,
+    m: 60,
+    h: 60 * 60,
+    d: 24 * 60 * 60,
   };
 
   const match = duration.match(/^(\d+)([smhd])$/);
@@ -18,21 +18,10 @@ function parseDuration(duration: string): number {
 const envSchema = z.object({
   NODE_ENV: z.enum(['production', 'development']).default('development'),
   DATABASE_URL: z.url(),
+  REDIS_URL: z.url(),
   PORT: z.coerce.number(),
-  JWT_SECRET: z.string(),
-  ACCESS_TOKEN_EXPIRY_TIME: z.string().transform((val, ctx) => {
-    try {
-      return parseDuration(val);
-    } catch {
-      ctx.addIssue({
-        code: 'custom',
-        message: `Invalid duration format: "${val}". Expected format: 15m, 7d, 1h, 30s`,
-      });
-
-      return z.NEVER;
-    }
-  }),
-  REFRESH_TOKEN_EXPIRY_TIME: z.string().transform((val, ctx) => {
+  SESSION_SECRET: z.string(),
+  SESSION_EXPIRY_TIME: z.string().transform((val, ctx) => {
     try {
       return parseDuration(val);
     } catch {

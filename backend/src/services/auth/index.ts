@@ -5,7 +5,12 @@ import { UNAUTHORIZED_MESSAGE } from '@/docs/error.docs';
 import db from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import type { LoginInput, SignupInput } from '@/lib/schemas/auth.schema';
-import { signJWT, type TokenPayload, validateJWT } from '@/lib/utils/jwt';
+import {
+  createSession,
+  getSession,
+  deleteSession as deleteRedisSession,
+  type SessionCreatePayload,
+} from '@/lib/utils/session';
 
 const INVALID_TOKEN_MESSAGE = 'Missing or invalid token';
 
@@ -38,75 +43,35 @@ export async function login({ email, password }: LoginInput) {
     });
   }
 
-  const jwtPayload = {
+  const payload = {
     id: user.id,
-    fullName: user.fullName,
     email: user.email,
     role: user.role,
-  } satisfies TokenPayload;
+  } satisfies SessionCreatePayload;
 
-  const accessToken = signJWT(jwtPayload, 'access-token');
-  const refreshToken = signJWT(jwtPayload, 'refresh-token');
+  const sessionId = await createSession(payload);
 
   return {
-    accessToken,
-    refreshToken,
+    sessionId,
     user,
   };
 }
 
-export async function getNewToken(token?: string) {
-  if (!token) {
-    throw new HTTPException(401, {
-      message: UNAUTHORIZED_MESSAGE,
-    });
-  }
-
-  const validated = validateJWT(token);
-  if (!validated) {
-    throw new HTTPException(401, {
-      message: INVALID_TOKEN_MESSAGE,
-    });
-  }
-
-  const user = await db.query.users.findFirst({
-    where: eq(users.email, validated.email),
-  });
-  if (!user) {
-    throw new HTTPException(401, {
-      message: INVALID_TOKEN_MESSAGE,
-    });
-  }
-  const jwtPayload = {
-    id: user.id,
-    fullName: user.fullName,
-    email: user.email,
-    role: user.role,
-  } satisfies TokenPayload;
-
-  const accessToken = signJWT(jwtPayload, 'access-token');
-  const refreshToken = signJWT(jwtPayload, 'refresh-token');
-
-  return { accessToken, refreshToken };
+export async function deleteSession(sessionId: string) {
+  await deleteRedisSession(sessionId);
 }
 
-export async function getSessionUser(accessToken?: string) {
-  if (!accessToken) {
+export async function getSessionUser(sessionId: string) {
+  const session = await getSession(sessionId);
+
+  if (!session) {
     throw new HTTPException(401, {
       message: UNAUTHORIZED_MESSAGE,
     });
   }
 
-  const decoded = validateJWT(accessToken);
-
-  if (!decoded) {
-    throw new HTTPException(401, {
-      message: INVALID_TOKEN_MESSAGE,
-    });
-  }
-
   const user = await db.query.users.findFirst({
-    where: eq(users.email, decoded.email),
+    where: eq(users.email, session.email),
     columns: {
       password: false,
     },

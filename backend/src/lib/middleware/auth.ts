@@ -1,9 +1,10 @@
-import { deleteCookie, getCookie } from 'hono/cookie';
+import { deleteCookie, getSignedCookie } from 'hono/cookie';
 import { createMiddleware } from 'hono/factory';
 import { HTTPException } from 'hono/http-exception';
-import { FORBIDDEN_MESSAGE, TOKEN_INVALID_MESSAGE, UNAUTHORIZED_MESSAGE } from '@/docs/error.docs';
-import { ACCESS_TOKEN_COOKIE_NAME, type ROLES } from '../constants';
-import { type TokenPayload, validateJWT } from '../utils/jwt';
+import { FORBIDDEN_MESSAGE, UNAUTHORIZED_MESSAGE } from '@/docs/error.docs';
+import { env } from '../utils/env';
+import { type ROLES, SESSION_COOKIE_NAME } from '../constants';
+import { getSession, type SessionPayload } from '../utils/session';
 
 type AuthorizationMiddlewareOptions = {
   roles?: Array<(typeof ROLES)[number]>;
@@ -14,23 +15,27 @@ export const authorizationMiddleware = (options?: AuthorizationMiddlewareOptions
   createMiddleware(async (c, next) => {
     const { roles, requireAuthentication = true } = options || {};
 
-    const accessToken = getCookie(c, ACCESS_TOKEN_COOKIE_NAME);
+    const sessionId = await getSignedCookie(c, env.SESSION_SECRET, SESSION_COOKIE_NAME);
 
-    if (requireAuthentication && !accessToken) {
+    console.log('session id: ', sessionId);
+
+    if (requireAuthentication && !sessionId) {
       throw new HTTPException(401, {
         message: UNAUTHORIZED_MESSAGE,
       });
     }
 
-    if (accessToken) {
-      const decoded = validateJWT(accessToken);
+    if (sessionId) {
+      const session = await getSession(sessionId);
 
-      c.set('user', decoded);
+      console.log('session: ', session);
 
-      if (!decoded) {
-        deleteCookie(c, ACCESS_TOKEN_COOKIE_NAME);
+      c.set('user', session);
+
+      if (!session) {
+        deleteCookie(c, SESSION_COOKIE_NAME);
         throw new HTTPException(403, {
-          message: TOKEN_INVALID_MESSAGE,
+          message: UNAUTHORIZED_MESSAGE,
         });
       }
     }
@@ -49,6 +54,6 @@ export const authorizationMiddleware = (options?: AuthorizationMiddlewareOptions
 
 declare module 'hono' {
   interface ContextVariableMap {
-    user?: TokenPayload | undefined;
+    user?: SessionPayload | null;
   }
 }

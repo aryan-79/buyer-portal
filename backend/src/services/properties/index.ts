@@ -1,4 +1,4 @@
-import { and, eq, gt, ilike, lt, or, sql } from 'drizzle-orm';
+import { and, desc, DrizzleQueryError, eq, gt, ilike, lt, or, sql } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import db from '@/lib/db';
 import { favourites, properties } from '@/lib/db/schema';
@@ -11,7 +11,7 @@ export async function registerProperty(input: CreatePropertyInput) {
   return newProperty;
 }
 
-export async function getProperties({ page, limit, ...query }: PropertyQuery) {
+export async function getProperties({ page, limit, userId, ...query }: PropertyQuery & { userId?: string }) {
   const filters = and(
     query.minPrice ? gt(properties.price, query.minPrice) : undefined,
     query.maxPrice ? lt(properties.price, query.maxPrice) : undefined,
@@ -33,6 +33,16 @@ export async function getProperties({ page, limit, ...query }: PropertyQuery) {
     columns: {
       ownerId: false,
     },
+    extras: {
+      isFavourited: userId
+        ? sql<boolean>`EXISTS (
+        SELECT 1 FROM "favourites"
+        WHERE "favourites"."property_id" = "properties"."id"
+        AND "favourites"."user_id" = ${userId}
+      )`.as('is_favourited')
+        : sql<boolean>`false`.as('is_favourited'),
+    },
+    orderBy: desc(properties.favouriteCount),
     offset: getOffset(page, limit),
     limit,
   });
@@ -43,30 +53,42 @@ export async function getProperties({ page, limit, ...query }: PropertyQuery) {
 }
 
 export async function updateFavourite(userId: string, propertyId: string, action: 'add' | 'remove') {
-  return await db.transaction(async (tx) => {
-    const isAdd = action === 'add';
+  try {
+    return await db.transaction(async (tx) => {
+      const isAdd = action === 'add';
 
-    const [favourite] = isAdd
-      ? await tx.insert(favourites).values({ userId, propertyId }).returning()
-      : await tx
-          .delete(favourites)
-          .where(and(eq(favourites.userId, userId), eq(favourites.propertyId, propertyId)))
-          .returning();
+      const [favourite] = isAdd
+        ? await tx.insert(favourites).values({ userId, propertyId }).returning()
+        : await tx
+            .delete(favourites)
+            .where(and(eq(favourites.userId, userId), eq(favourites.propertyId, propertyId)))
+            .returning();
 
-    if (!favourite) throw new HTTPException(404, { message: 'Favourite not found' });
+      if (!favourite) throw new HTTPException(404, { message: 'Favourite not found' });
 
-    const [{ favouriteCount }] = await tx
-      .update(properties)
-      .set({ favouriteCount: sql`${properties.favouriteCount} ${isAdd ? sql`+ 1` : sql`- 1`}` })
-      .where(eq(properties.id, propertyId))
-      .returning({ favouriteCount: properties.favouriteCount });
+      const [{ favouriteCount }] = await tx
+        .update(properties)
+        .set({ favouriteCount: sql`${properties.favouriteCount} ${isAdd ? sql`+ 1` : sql`- 1`}` })
+        .where(eq(properties.id, propertyId))
+        .returning({ favouriteCount: properties.favouriteCount });
 
-    return {
-      propertyId: favourite.propertyId,
-      favouritedAt: favourite.favouritedAt,
-      favouriteCount,
-    };
-  });
+      return {
+        propertyId: favourite.propertyId,
+        favouritedAt: favourite.favouritedAt,
+        favouriteCount,
+      };
+    });
+  } catch (err) {
+    if (err instanceof DrizzleQueryError) {
+      if (err.cause && 'detail' in err.cause && 'code' in err.cause && err.cause.code === '23505') {
+        throw new HTTPException(409, {
+          message: 'This property is already in your favourite list',
+        });
+      }
+    }
+
+    throw err;
+  }
 }
 
 export async function getPropertyById(propertyId: string) {

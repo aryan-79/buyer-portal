@@ -29,14 +29,14 @@ export const loginRouteSpec = describeRoute({
   },
 });
 
-export const refreshRouteSpec = describeRoute({
+export const logoutRouteSpec = describeRoute({
   tags,
-  description: 'Refresh access token using refresh token',
+  description: 'Logout from your session',
   responses: {
-    204: {
-      description: 'Tokens refreshed successfully',
+    200: {
+      description: 'Logged out successfully',
     },
-    ...errorSpecs,
+    500: errorSpecs[500],
   },
 });
 

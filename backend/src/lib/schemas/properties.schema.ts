@@ -40,14 +40,15 @@ export const propertyQuerySchema = basePaginationSchema.extend({
   search: z.string().optional(),
 });
 
-export const getPropertiesSchema = createPaginatedSuccessReponseSchema(z.array(createPropertySchema), 'properties');
-
 export const propertyResponseSchema = createPropertySchema.extend({
   id: z.uuid(),
   favouriteCount: z.number().default(0),
   listedAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
+  isFavourited: z.boolean(),
 });
+
+export const getPropertiesSchema = createPaginatedSuccessReponseSchema(z.array(propertyResponseSchema), 'properties');
 
 export const addFavouriteResponseSchema = z.object({
   propertyId: z.uuid(),

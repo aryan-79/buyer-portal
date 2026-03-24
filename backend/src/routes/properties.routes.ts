@@ -38,18 +38,28 @@ app.post(
   },
 );
 
-app.get('/', getPropertiesRouteSpec, validator('query', propertyQuerySchema), async (c) => {
-  const query = c.req.valid('query');
-  const { properties, total } = await getProperties(query);
+app.get(
+  '/',
+  getPropertiesRouteSpec,
+  authorizationMiddleware({
+    requireAuthentication: false,
+  }),
+  validator('query', propertyQuerySchema),
+  async (c) => {
+    const user = c.get('user');
 
-  const response = createPaginatedSuccessResponse(properties, 'Properties fetched successfully', 'properties', {
-    page: query.page,
-    limit: query.limit,
-    total,
-  });
+    const query = c.req.valid('query');
+    const { properties, total } = await getProperties({ ...query, userId: user?.id });
 
-  return c.json(response, 200);
-});
+    const response = createPaginatedSuccessResponse(properties, 'Properties fetched successfully', 'properties', {
+      page: query.page,
+      limit: query.limit,
+      total,
+    });
+
+    return c.json(response, 200);
+  },
+);
 
 app.get(
   '/favourites',
@@ -63,7 +73,16 @@ app.get(
 
     const properties = await getFavourites(id, query);
 
-    const response = createSuccessResponse(properties, 'Favourites fetched successfully');
+    const response = createPaginatedSuccessResponse(
+      properties.favourites,
+      'Favourites fetched successfully',
+      'favourites',
+      {
+        page: query.page,
+        limit: query.limit,
+        total: properties.total,
+      },
+    );
 
     return c.json(response, 200);
   },
