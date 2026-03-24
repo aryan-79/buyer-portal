@@ -55,6 +55,10 @@ export async function getProperties({
 
   const total = await db.$count(properties, filters);
 
+  console.log('results: ', results);
+  console.log('search: ', query.search);
+  console.log('userid: ', userId);
+
   return { properties: results, total };
 }
 
@@ -129,7 +133,7 @@ export async function getFavourites(userId: string, { page, limit, ...query }: P
       : undefined,
   );
 
-  const results = await db
+  const propertiesPromise = db
     .select({
       id: favourites.id,
       favouritedAt: favourites.favouritedAt,
@@ -158,7 +162,14 @@ export async function getFavourites(userId: string, { page, limit, ...query }: P
     .from(favourites)
     .innerJoin(properties, eq(favourites.propertyId, properties.id))
     .where(filters);
-  const total = await db.$count(favourites, filters);
+
+  const countsPromise = db
+    .select({ total: sql<number>`count(*)` })
+    .from(favourites)
+    .innerJoin(properties, eq(favourites.propertyId, properties.id))
+    .where(filters);
+
+  const [results, [{ total }]] = await Promise.all([propertiesPromise, countsPromise]);
 
   return { favourites: results, total };
 }

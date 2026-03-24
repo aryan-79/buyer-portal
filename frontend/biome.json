@@ -18,7 +18,8 @@
         "useFocusableInteractive": "warn",
         "noRedundantRoles": "warn",
         "useAriaPropsForRole": "warn",
-        "useMediaCaption": "off"
+        "useMediaCaption": "off",
+        "noLabelWithoutControl": "off"
       },
       "correctness": {
         "noUnusedVariables": "error",
@@ -26,7 +27,8 @@
       },
       "suspicious": {
         "noArrayIndexKey": "warn",
-        "noUnknownAtRules": "off"
+        "noUnknownAtRules": "off",
+        "noDoubleEquals": "off"
       },
       "security": {
         "noDangerouslySetInnerHtml": "warn"

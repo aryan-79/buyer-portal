@@ -6,9 +6,7 @@
     "dev": "vite dev --port 3000",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run",
-    "lint": "eslint",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx}\"",
+    "check": "biome check --write",
     "typecheck": "tsc --noEmit",
     "generate-queries": "npx @openapi-codegen/cli gen"
   },

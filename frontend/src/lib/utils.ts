@@ -1,6 +1,6 @@
 import { createIsomorphicFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
-import { clsx, type ClassValue } from 'clsx';
+import { type ClassValue, clsx } from 'clsx';
 import { cache } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { fetchGetAuthSession } from './queries/query-components';

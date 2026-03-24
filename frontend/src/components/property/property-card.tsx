@@ -9,8 +9,8 @@ import {
 import { cn, parsePrice } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
-import { Skeleton } from '../ui/skeleton';
 import { Empty } from '../ui/empty';
+import { Skeleton } from '../ui/skeleton';
 
 type PropertyCardProps = {
   property: GetPropertiesByPropertyIdResponse['data'];

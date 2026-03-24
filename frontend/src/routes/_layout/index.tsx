@@ -1,40 +1,46 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { fetchGetProperties } from '@/lib/queries/query-components';
 import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query';
+import { createFileRoute } from '@tanstack/react-router';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import PropertyCard, { PropertiesEmpty, PropertyCardSkeleton } from '@/components/property/property-card';
+import { fetchGetProperties } from '@/lib/queries/query-components';
 
-const propertiesQueryOptions = infiniteQueryOptions({
-  queryKey: ['properties'],
-  queryFn: async ({ pageParam }) => {
-    const data = await fetchGetProperties({
-      queryParams: {
-        page: pageParam,
-        limit: 20,
-      },
-    });
+const propertiesQueryOptions = (search?: string) =>
+  infiniteQueryOptions({
+    queryKey: ['properties', search],
+    queryFn: async ({ pageParam }) => {
+      const data = await fetchGetProperties({
+        queryParams: {
+          page: pageParam,
+          limit: 20,
+          ...(search ? { search } : {}),
+        },
+      });
 
-    return data.data;
-  },
-  initialPageParam: 1,
-  getNextPageParam: (last) => {
-    if (last.page < last.totalPages) {
-      return last.page + 1;
-    }
-  },
-});
+      return data.data;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (last) => {
+      if (last.page < last.totalPages) {
+        return last.page + 1;
+      }
+    },
+  });
 
 export const Route = createFileRoute('/_layout/')({
-  loader: async ({ context }) => {
-    return await context.queryClient.ensureInfiniteQueryData(propertiesQueryOptions);
+  loaderDeps: ({ search }) => ({ search }),
+  loader: async ({ context, deps }) => {
+    const data = await context.queryClient.ensureInfiniteQueryData(propertiesQueryOptions(deps.search.search));
+    return data;
   },
   component: Component,
 });
 
 function Component() {
+  const { search } = Route.useSearch();
+
   const loaderData = Route.useLoaderData();
   const { data, fetchNextPage, hasNextPage, isPending } = useInfiniteQuery({
-    ...propertiesQueryOptions,
+    ...propertiesQueryOptions(search),
     initialData: loaderData,
   });
 

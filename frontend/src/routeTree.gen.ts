@@ -9,17 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as LayoutRouteRouteImport } from './routes/_layout/route'
+import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as PropertiesIndexRouteImport } from './routes/properties/index'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as PropertiesPropertyIdRouteImport } from './routes/properties/$propertyId'
 import { Route as LayoutProtectedRouteImport } from './routes/_layout/_protected'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
-import { Route as LayoutProtectedTestRouteImport } from './routes/_layout/_protected/test'
 import { Route as LayoutProtectedFavouritesRouteImport } from './routes/_layout/_protected/favourites'
 
-const LayoutRouteRoute = LayoutRouteRouteImport.update({
+const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
   getParentRoute: () => rootRouteImport,
 } as any)
@@ -31,7 +30,7 @@ const PropertiesIndexRoute = PropertiesIndexRouteImport.update({
 const LayoutIndexRoute = LayoutIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => LayoutRouteRoute,
+  getParentRoute: () => LayoutRoute,
 } as any)
 const PropertiesPropertyIdRoute = PropertiesPropertyIdRouteImport.update({
   id: '/properties/$propertyId',
@@ -40,7 +39,7 @@ const PropertiesPropertyIdRoute = PropertiesPropertyIdRouteImport.update({
 } as any)
 const LayoutProtectedRoute = LayoutProtectedRouteImport.update({
   id: '/_protected',
-  getParentRoute: () => LayoutRouteRoute,
+  getParentRoute: () => LayoutRoute,
 } as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
   id: '/_auth/signup',
@@ -51,11 +50,6 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/_auth/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
-} as any)
-const LayoutProtectedTestRoute = LayoutProtectedTestRouteImport.update({
-  id: '/test',
-  path: '/test',
-  getParentRoute: () => LayoutProtectedRoute,
 } as any)
 const LayoutProtectedFavouritesRoute =
   LayoutProtectedFavouritesRouteImport.update({
@@ -71,7 +65,6 @@ export interface FileRoutesByFullPath {
   '/properties/$propertyId': typeof PropertiesPropertyIdRoute
   '/properties/': typeof PropertiesIndexRoute
   '/favourites': typeof LayoutProtectedFavouritesRoute
-  '/test': typeof LayoutProtectedTestRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
@@ -80,11 +73,10 @@ export interface FileRoutesByTo {
   '/properties/$propertyId': typeof PropertiesPropertyIdRoute
   '/properties': typeof PropertiesIndexRoute
   '/favourites': typeof LayoutProtectedFavouritesRoute
-  '/test': typeof LayoutProtectedTestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_layout': typeof LayoutRouteRouteWithChildren
+  '/_layout': typeof LayoutRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/signup': typeof AuthSignupRoute
   '/_layout/_protected': typeof LayoutProtectedRouteWithChildren
@@ -92,7 +84,6 @@ export interface FileRoutesById {
   '/_layout/': typeof LayoutIndexRoute
   '/properties/': typeof PropertiesIndexRoute
   '/_layout/_protected/favourites': typeof LayoutProtectedFavouritesRoute
-  '/_layout/_protected/test': typeof LayoutProtectedTestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -103,7 +94,6 @@ export interface FileRouteTypes {
     | '/properties/$propertyId'
     | '/properties/'
     | '/favourites'
-    | '/test'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -112,7 +102,6 @@ export interface FileRouteTypes {
     | '/properties/$propertyId'
     | '/properties'
     | '/favourites'
-    | '/test'
   id:
     | '__root__'
     | '/_layout'
@@ -123,11 +112,10 @@ export interface FileRouteTypes {
     | '/_layout/'
     | '/properties/'
     | '/_layout/_protected/favourites'
-    | '/_layout/_protected/test'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  LayoutRouteRoute: typeof LayoutRouteRouteWithChildren
+  LayoutRoute: typeof LayoutRouteWithChildren
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
   PropertiesPropertyIdRoute: typeof PropertiesPropertyIdRoute
@@ -140,7 +128,7 @@ declare module '@tanstack/react-router' {
       id: '/_layout'
       path: ''
       fullPath: '/'
-      preLoaderRoute: typeof LayoutRouteRouteImport
+      preLoaderRoute: typeof LayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/properties/': {
@@ -155,7 +143,7 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof LayoutIndexRouteImport
-      parentRoute: typeof LayoutRouteRoute
+      parentRoute: typeof LayoutRoute
     }
     '/properties/$propertyId': {
       id: '/properties/$propertyId'
@@ -169,7 +157,7 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof LayoutProtectedRouteImport
-      parentRoute: typeof LayoutRouteRoute
+      parentRoute: typeof LayoutRoute
     }
     '/_auth/signup': {
       id: '/_auth/signup'
@@ -185,13 +173,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_layout/_protected/test': {
-      id: '/_layout/_protected/test'
-      path: '/test'
-      fullPath: '/test'
-      preLoaderRoute: typeof LayoutProtectedTestRouteImport
-      parentRoute: typeof LayoutProtectedRoute
-    }
     '/_layout/_protected/favourites': {
       id: '/_layout/_protected/favourites'
       path: '/favourites'
@@ -204,34 +185,31 @@ declare module '@tanstack/react-router' {
 
 interface LayoutProtectedRouteChildren {
   LayoutProtectedFavouritesRoute: typeof LayoutProtectedFavouritesRoute
-  LayoutProtectedTestRoute: typeof LayoutProtectedTestRoute
 }
 
 const LayoutProtectedRouteChildren: LayoutProtectedRouteChildren = {
   LayoutProtectedFavouritesRoute: LayoutProtectedFavouritesRoute,
-  LayoutProtectedTestRoute: LayoutProtectedTestRoute,
 }
 
 const LayoutProtectedRouteWithChildren = LayoutProtectedRoute._addFileChildren(
   LayoutProtectedRouteChildren,
 )
 
-interface LayoutRouteRouteChildren {
+interface LayoutRouteChildren {
   LayoutProtectedRoute: typeof LayoutProtectedRouteWithChildren
   LayoutIndexRoute: typeof LayoutIndexRoute
 }
 
-const LayoutRouteRouteChildren: LayoutRouteRouteChildren = {
+const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutProtectedRoute: LayoutProtectedRouteWithChildren,
   LayoutIndexRoute: LayoutIndexRoute,
 }
 
-const LayoutRouteRouteWithChildren = LayoutRouteRoute._addFileChildren(
-  LayoutRouteRouteChildren,
-)
+const LayoutRouteWithChildren =
+  LayoutRoute._addFileChildren(LayoutRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  LayoutRouteRoute: LayoutRouteRouteWithChildren,
+  LayoutRoute: LayoutRouteWithChildren,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
   PropertiesPropertyIdRoute: PropertiesPropertyIdRoute,

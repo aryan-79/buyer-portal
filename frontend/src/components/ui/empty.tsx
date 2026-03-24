@@ -1,7 +1,6 @@
-import { cva, type VariantProps } from 'class-variance-authority';
-
-import { cn } from '@/lib/utils';
 import type { Icon } from '@phosphor-icons/react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
 
 function EmptyBase({ className, ...props }: React.ComponentProps<'div'>) {
   return (
@@ -103,4 +102,4 @@ function Empty({ className, children, title, icon, iconProps, description, ...pr
   );
 }
 
-export { EmptyBase, EmptyHeader, EmptyTitle, EmptyDescription, EmptyContent, EmptyMedia, Empty };
+export { Empty, EmptyBase, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle };
