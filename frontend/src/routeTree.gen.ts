@@ -10,10 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LayoutRouteImport } from './routes/_layout'
-import { Route as PropertiesIndexRouteImport } from './routes/properties/index'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
-import { Route as PropertiesPropertyIdRouteImport } from './routes/properties/$propertyId'
 import { Route as LayoutProtectedRouteImport } from './routes/_layout/_protected'
+import { Route as LayoutPropertyIdRouteImport } from './routes/_layout/$propertyId'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as LayoutProtectedFavouritesRouteImport } from './routes/_layout/_protected/favourites'
@@ -22,23 +21,18 @@ const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PropertiesIndexRoute = PropertiesIndexRouteImport.update({
-  id: '/properties/',
-  path: '/properties/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LayoutIndexRoute = LayoutIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LayoutRoute,
 } as any)
-const PropertiesPropertyIdRoute = PropertiesPropertyIdRouteImport.update({
-  id: '/properties/$propertyId',
-  path: '/properties/$propertyId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LayoutProtectedRoute = LayoutProtectedRouteImport.update({
   id: '/_protected',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutPropertyIdRoute = LayoutPropertyIdRouteImport.update({
+  id: '/$propertyId',
+  path: '/$propertyId',
   getParentRoute: () => LayoutRoute,
 } as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
@@ -62,16 +56,14 @@ export interface FileRoutesByFullPath {
   '/': typeof LayoutIndexRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
-  '/properties/$propertyId': typeof PropertiesPropertyIdRoute
-  '/properties/': typeof PropertiesIndexRoute
+  '/$propertyId': typeof LayoutPropertyIdRoute
   '/favourites': typeof LayoutProtectedFavouritesRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
+  '/$propertyId': typeof LayoutPropertyIdRoute
   '/': typeof LayoutIndexRoute
-  '/properties/$propertyId': typeof PropertiesPropertyIdRoute
-  '/properties': typeof PropertiesIndexRoute
   '/favourites': typeof LayoutProtectedFavouritesRoute
 }
 export interface FileRoutesById {
@@ -79,38 +71,24 @@ export interface FileRoutesById {
   '/_layout': typeof LayoutRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/signup': typeof AuthSignupRoute
+  '/_layout/$propertyId': typeof LayoutPropertyIdRoute
   '/_layout/_protected': typeof LayoutProtectedRouteWithChildren
-  '/properties/$propertyId': typeof PropertiesPropertyIdRoute
   '/_layout/': typeof LayoutIndexRoute
-  '/properties/': typeof PropertiesIndexRoute
   '/_layout/_protected/favourites': typeof LayoutProtectedFavouritesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/login'
-    | '/signup'
-    | '/properties/$propertyId'
-    | '/properties/'
-    | '/favourites'
+  fullPaths: '/' | '/login' | '/signup' | '/$propertyId' | '/favourites'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/login'
-    | '/signup'
-    | '/'
-    | '/properties/$propertyId'
-    | '/properties'
-    | '/favourites'
+  to: '/login' | '/signup' | '/$propertyId' | '/' | '/favourites'
   id:
     | '__root__'
     | '/_layout'
     | '/_auth/login'
     | '/_auth/signup'
+    | '/_layout/$propertyId'
     | '/_layout/_protected'
-    | '/properties/$propertyId'
     | '/_layout/'
-    | '/properties/'
     | '/_layout/_protected/favourites'
   fileRoutesById: FileRoutesById
 }
@@ -118,8 +96,6 @@ export interface RootRouteChildren {
   LayoutRoute: typeof LayoutRouteWithChildren
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
-  PropertiesPropertyIdRoute: typeof PropertiesPropertyIdRoute
-  PropertiesIndexRoute: typeof PropertiesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -131,13 +107,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/properties/': {
-      id: '/properties/'
-      path: '/properties'
-      fullPath: '/properties/'
-      preLoaderRoute: typeof PropertiesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_layout/': {
       id: '/_layout/'
       path: '/'
@@ -145,18 +114,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
-    '/properties/$propertyId': {
-      id: '/properties/$propertyId'
-      path: '/properties/$propertyId'
-      fullPath: '/properties/$propertyId'
-      preLoaderRoute: typeof PropertiesPropertyIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_layout/_protected': {
       id: '/_layout/_protected'
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof LayoutProtectedRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/$propertyId': {
+      id: '/_layout/$propertyId'
+      path: '/$propertyId'
+      fullPath: '/$propertyId'
+      preLoaderRoute: typeof LayoutPropertyIdRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_auth/signup': {
@@ -196,11 +165,13 @@ const LayoutProtectedRouteWithChildren = LayoutProtectedRoute._addFileChildren(
 )
 
 interface LayoutRouteChildren {
+  LayoutPropertyIdRoute: typeof LayoutPropertyIdRoute
   LayoutProtectedRoute: typeof LayoutProtectedRouteWithChildren
   LayoutIndexRoute: typeof LayoutIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
+  LayoutPropertyIdRoute: LayoutPropertyIdRoute,
   LayoutProtectedRoute: LayoutProtectedRouteWithChildren,
   LayoutIndexRoute: LayoutIndexRoute,
 }
@@ -212,8 +183,6 @@ const rootRouteChildren: RootRouteChildren = {
   LayoutRoute: LayoutRouteWithChildren,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
-  PropertiesPropertyIdRoute: PropertiesPropertyIdRoute,
-  PropertiesIndexRoute: PropertiesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

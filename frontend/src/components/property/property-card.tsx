@@ -1,4 +1,4 @@
-import { BathtubIcon, BedIcon, BuildingOfficeIcon, CookingPotIcon, HeartIcon } from '@phosphor-icons/react';
+import { BathtubIcon, BedIcon, BuildingOfficeIcon, CookingPotIcon, CouchIcon, HeartIcon } from '@phosphor-icons/react';
 import { Link } from '@tanstack/react-router';
 import { defaultMutationOptions } from '@/lib/mutaiton-options';
 import {
@@ -31,7 +31,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
     {
       name: 'Living Rooms',
       value: property.livingroom,
-      icon: BathtubIcon,
+      icon: CouchIcon,
     },
     {
       name: 'Bathrooms',
@@ -43,9 +43,14 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   return (
     <Card className='rounded-md pt-0'>
       <div className='relative'>
-        <Link to='/properties/$propertyId' params={{ propertyId: property.id }}>
+        <Link to='/$propertyId' params={{ propertyId: property.id }}>
           <img src={property.coverImage} alt={property.title} className='h-48 w-full object-cover' />
         </Link>
+        {property.area && (
+          <div className='absolute bottom-1 right-1 bg-secondary text-secondary-foreground p-2'>
+            {property.area} sq.ft
+          </div>
+        )}
         <FavouriteButton
           propertyId={property.id}
           isFavourited={property.isFavourited}
@@ -53,7 +58,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         />
       </div>
 
-      <Link to='/properties/$propertyId' params={{ propertyId: property.id }}>
+      <Link to='/$propertyId' params={{ propertyId: property.id }}>
         <div className='px-2 space-y-5 @container'>
           <div>
             <h3 className='font-semibold text-muted-foreground md:text-xl lg:text-2xl'>{property.title}</h3>

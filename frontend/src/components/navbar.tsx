@@ -4,6 +4,11 @@ import { useDebounceCallback } from '@/lib/hooks/use-debounce';
 import Logo from './logo';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { usePostAuthLogout } from '@/lib/queries/query-components';
+import { defaultMutationOptions } from '@/lib/mutaiton-options';
+import { getContext } from '@/integrations/tanstack-query/provider';
 
 const Route = getRouteApi('/_layout');
 
@@ -27,10 +32,14 @@ export default function Navbar() {
     });
   });
 
+  const { mutate: logout, isPending } = usePostAuthLogout(defaultMutationOptions());
+
   return (
     <nav className='flex justify-between items-center gap-4 container p-4 sticky top-0 bg-background z-50'>
-      <Logo className='size-6 md:size-8 [&>svg]:size-4' showName />
-      <div className='flex gap-4 items-center'>
+      <Link to='/'>
+        <Logo className='size-6 md:size-8 [&>svg]:size-4' showName />
+      </Link>
+      <div className='flex gap-2 items-center'>
         <Input
           key={latestLocation.pathname}
           defaultValue={searchParams.search}
@@ -41,15 +50,55 @@ export default function Navbar() {
           placeholder='Search'
           className='border-border'
         />
-        {session?.fullName && <span>{session.fullName}</span>}
         {session ? (
           <Button variant='outline' render={<Link to='/favourites' search={{}} />} nativeButton={false}>
-            <HeartIcon /> Favourites
+            <HeartIcon /> <span className='hidden md:inline'>Favourites</span>
           </Button>
         ) : (
           <Button render={<Link to='/login' />} nativeButton={false}>
             Login
           </Button>
+        )}
+
+        {session && (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Avatar>
+                  <AvatarImage src={session.image} />
+                  <AvatarFallback className='uppercase'>{session.fullName.slice(0, 2)}</AvatarFallback>
+                </Avatar>
+              }
+              nativeButton
+            />
+
+            <DropdownMenuContent align='end'>
+              <DropdownMenuItem
+                className='w-full cursor-pointer hover:bg-muted focus:bg-muted'
+                render={
+                  <button
+                    disabled={isPending}
+                    onClick={() => {
+                      logout(
+                        {},
+                        {
+                          onSuccess: () => {
+                            navigate({
+                              to: '/',
+                            });
+                            getContext().queryClient.invalidateQueries();
+                          },
+                        },
+                      );
+                    }}
+                    type='button'
+                  >
+                    Logout
+                  </button>
+                }
+              />
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </div>
     </nav>

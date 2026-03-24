@@ -10,7 +10,7 @@ export default function Logo({ className, showName }: { className?: string; show
         <HouseLineIcon size={40} weight='duotone' />
       </div>
 
-      {showName && <span className='font-bold text-xl md:text-2xl'>Fareal EState</span>}
+      {showName && <span className='font-bold text-xl md:text-2xl hidden sm:block'>Fareal EState</span>}
     </div>
   );
 }
