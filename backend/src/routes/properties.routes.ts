@@ -49,7 +49,7 @@ app.get(
     const user = c.get('user');
 
     const query = c.req.valid('query');
-    const { properties, total } = await getProperties({ ...query, userId: user?.id });
+    const { properties, total } = await getProperties({ ...query, userId: user?.id, orderBy: 'createdAt' });
 
     const response = createPaginatedSuccessResponse(properties, 'Properties fetched successfully', 'properties', {
       page: query.page,

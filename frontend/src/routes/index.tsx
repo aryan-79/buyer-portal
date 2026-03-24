@@ -1,19 +1,62 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { Button } from "@/components/ui/button"
+import { createFileRoute } from '@tanstack/react-router';
+import { fetchGetProperties } from '@/lib/queries/query-components';
+import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import PropertyCard, { PropertyCardSkeleton } from '@/components/property/property-card';
 
-export const Route = createFileRoute("/")({ component: App })
+const propertiesQueryOptions = infiniteQueryOptions({
+  queryKey: ['properties'],
+  queryFn: async ({ pageParam }) => {
+    const data = await fetchGetProperties({
+      queryParams: {
+        page: pageParam,
+        limit: 20,
+      },
+    });
 
-function App() {
+    return data.data;
+  },
+  initialPageParam: 1,
+  getNextPageParam: (last) => {
+    if (last.page < last.totalPages) {
+      return last.page + 1;
+    }
+  },
+});
+
+export const Route = createFileRoute('/')({
+  loader: async ({ context }) => {
+    await context.queryClient.prefetchInfiniteQuery(propertiesQueryOptions);
+  },
+  component: Component,
+});
+
+function Component() {
+  const { data, fetchNextPage, hasNextPage } = useInfiniteQuery(propertiesQueryOptions);
+
+  const properties = data?.pages.flatMap((page) => page.properties);
+
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
+    <div className='container p-0'>
+      <InfiniteScroll
+        className='p-4'
+        dataLength={properties?.length || 0}
+        next={fetchNextPage}
+        hasMore={hasNextPage}
+        loader={
+          <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-4'>
+            {Array.from({ length: 4 }).map((_, index) => {
+              return <PropertyCardSkeleton key={index} />;
+            })}
+          </div>
+        }
+      >
+        <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-4'>
+          {properties?.map((property) => (
+            <PropertyCard property={property} key={property.id} />
+          ))}
         </div>
-      </div>
+      </InfiniteScroll>
     </div>
-  )
+  );
 }

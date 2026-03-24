@@ -2,6 +2,7 @@ import { describeRoute } from 'hono-openapi';
 import {
   addFavouriteResponseSchema,
   createPropertySchema,
+  getFavouritesSchema,
   getPropertiesSchema,
   propertyResponseSchema,
   removeFavouriteResonseSchema,
@@ -39,7 +40,7 @@ export const getFavouritesRouteSpec = describeRoute({
   description: 'Get list of favourite properties',
   responses: {
     200: responseSpec('success', {
-      schema: getPropertiesSchema,
+      schema: getFavouritesSchema,
       description: 'Properties fetched successfully',
     }),
     ...errorSpecs,

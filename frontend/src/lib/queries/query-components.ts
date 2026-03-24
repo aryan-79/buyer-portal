@@ -252,74 +252,42 @@ export const usePostAuthLogin = (
   });
 };
 
-export type PostAuthRefreshError = Fetcher.ErrorWrapper<
-  | {
-      status: 400;
-      payload: {
-        /**
-         * @default false
-         */
-        success?: boolean;
-        message: string;
-      };
-    }
-  | {
-      status: 401;
-      payload: {
-        /**
-         * @default false
-         */
-        success?: boolean;
-        message: string;
-      };
-    }
-  | {
-      status: 403;
-      payload: {
-        /**
-         * @default false
-         */
-        success?: boolean;
-        message: string;
-      };
-    }
-  | {
-      status: 500;
-      payload: {
-        /**
-         * @default false
-         */
-        success?: boolean;
-        message: string;
-      };
-    }
->;
+export type PostAuthLogoutError = Fetcher.ErrorWrapper<{
+  status: 500;
+  payload: {
+    /**
+     * @default false
+     */
+    success?: boolean;
+    message: string;
+  };
+}>;
 
-export type PostAuthRefreshVariables = QueryContext["fetcherOptions"];
+export type PostAuthLogoutVariables = QueryContext["fetcherOptions"];
 
 /**
- * Refresh access token using refresh token
+ * Logout from your session
  */
-export const fetchPostAuthRefresh = (
-  variables: PostAuthRefreshVariables,
+export const fetchPostAuthLogout = (
+  variables: PostAuthLogoutVariables,
   signal?: AbortSignal,
 ) =>
-  queryFetch<undefined, PostAuthRefreshError, undefined, {}, {}, {}>({
-    url: "/auth/refresh",
+  queryFetch<undefined, PostAuthLogoutError, undefined, {}, {}, {}>({
+    url: "/auth/logout",
     method: "post",
     ...variables,
     signal,
   });
 
 /**
- * Refresh access token using refresh token
+ * Logout from your session
  */
-export const usePostAuthRefresh = (
+export const usePostAuthLogout = (
   options?: Omit<
     reactQuery.UseMutationOptions<
       undefined,
-      PostAuthRefreshError,
-      PostAuthRefreshVariables
+      PostAuthLogoutError,
+      PostAuthLogoutVariables
     >,
     "mutationFn"
   >,
@@ -327,11 +295,11 @@ export const usePostAuthRefresh = (
   const { fetcherOptions } = useQueryContext();
   return reactQuery.useMutation<
     undefined,
-    PostAuthRefreshError,
-    PostAuthRefreshVariables
+    PostAuthLogoutError,
+    PostAuthLogoutVariables
   >({
-    mutationFn: (variables: PostAuthRefreshVariables) =>
-      fetchPostAuthRefresh(deepMerge(fetcherOptions, variables)),
+    mutationFn: (variables: PostAuthLogoutVariables) =>
+      fetchPostAuthLogout(deepMerge(fetcherOptions, variables)),
     ...options,
   });
 };
@@ -531,19 +499,13 @@ export type PostPropertiesResponse = {
      * @minLength 10
      */
     description: string;
-    /**
-     * @pattern ^\d+(\.\d{1,2})?$
-     */
-    price: string;
+    price: number;
     /**
      * @minLength 2
      * @maxLength 3
      */
     currency: string;
-    /**
-     * @pattern ^\d+(\.\d{1,2})?$
-     */
-    area?: string;
+    area?: number;
     /**
      * @minLength 3
      */
@@ -580,6 +542,11 @@ export type PostPropertiesResponse = {
      * @maximum 9007199254740991
      */
     livingroom?: number;
+    /**
+     * @format uri
+     */
+    coverImage: string;
+    images?: string[];
   };
 };
 
@@ -593,19 +560,13 @@ export type PostPropertiesRequestBody = {
    * @minLength 10
    */
   description: string;
-  /**
-   * @pattern ^\d+(\.\d{1,2})?$
-   */
-  price: string;
+  price: number;
   /**
    * @minLength 2
    * @maxLength 3
    */
   currency: string;
-  /**
-   * @pattern ^\d+(\.\d{1,2})?$
-   */
-  area?: string;
+  area?: number;
   /**
    * @minLength 3
    */
@@ -642,6 +603,11 @@ export type PostPropertiesRequestBody = {
    * @maximum 9007199254740991
    */
   livingroom?: number;
+  /**
+   * @format uri
+   */
+  coverImage: string;
+  images?: string[];
 };
 
 export type PostPropertiesVariables = {
@@ -778,19 +744,13 @@ export type GetPropertiesResponse = {
        * @minLength 10
        */
       description: string;
-      /**
-       * @pattern ^\d+(\.\d{1,2})?$
-       */
-      price: string;
+      price: number;
       /**
        * @minLength 2
        * @maxLength 3
        */
       currency: string;
-      /**
-       * @pattern ^\d+(\.\d{1,2})?$
-       */
-      area?: string;
+      area?: number;
       /**
        * @minLength 3
        */
@@ -827,19 +787,36 @@ export type GetPropertiesResponse = {
        * @maximum 9007199254740991
        */
       livingroom?: number;
+      /**
+       * @format uri
+       */
+      coverImage: string;
+      images?: string[];
+      /**
+       * @format uuid
+       * @pattern ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+       */
+      id: string;
+      /**
+       * @default 0
+       */
+      favouriteCount?: number;
+      /**
+       * @format date-time
+       * @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+       */
+      listedAt: string;
+      /**
+       * @format date-time
+       * @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+       */
+      updatedAt: string;
+      isFavourited: boolean;
     }[];
-    /**
-     * @default 1
-     */
-    page?: number;
-    /**
-     * @default 10
-     */
-    limit?: number;
-    /**
-     * @default 0
-     */
-    total?: number;
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
   };
 };
 
@@ -1037,19 +1014,13 @@ export type GetPropertiesFavouritesResponse = {
        * @minLength 10
        */
       description: string;
-      /**
-       * @pattern ^\d+(\.\d{1,2})?$
-       */
-      price: string;
+      price: number;
       /**
        * @minLength 2
        * @maxLength 3
        */
       currency: string;
-      /**
-       * @pattern ^\d+(\.\d{1,2})?$
-       */
-      area?: string;
+      area?: number;
       /**
        * @minLength 3
        */
@@ -1086,19 +1057,36 @@ export type GetPropertiesFavouritesResponse = {
        * @maximum 9007199254740991
        */
       livingroom?: number;
+      /**
+       * @format uri
+       */
+      coverImage: string;
+      images?: string[];
+      /**
+       * @format uuid
+       * @pattern ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+       */
+      id: string;
+      /**
+       * @default 0
+       */
+      favouriteCount?: number;
+      /**
+       * @format date-time
+       * @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+       */
+      listedAt: string;
+      /**
+       * @format date-time
+       * @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+       */
+      updatedAt: string;
+      isFavourited: boolean;
     }[];
-    /**
-     * @default 1
-     */
-    page?: number;
-    /**
-     * @default 10
-     */
-    limit?: number;
-    /**
-     * @default 0
-     */
-    total?: number;
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
   };
 };
 
@@ -1531,19 +1519,13 @@ export type GetPropertiesByPropertyIdResponse = {
      * @minLength 10
      */
     description: string;
-    /**
-     * @pattern ^\d+(\.\d{1,2})?$
-     */
-    price: string;
+    price: number;
     /**
      * @minLength 2
      * @maxLength 3
      */
     currency: string;
-    /**
-     * @pattern ^\d+(\.\d{1,2})?$
-     */
-    area?: string;
+    area?: number;
     /**
      * @minLength 3
      */
@@ -1581,6 +1563,11 @@ export type GetPropertiesByPropertyIdResponse = {
      */
     livingroom?: number;
     /**
+     * @format uri
+     */
+    coverImage: string;
+    images?: string[];
+    /**
      * @format uuid
      * @pattern ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
      */
@@ -1599,6 +1586,7 @@ export type GetPropertiesByPropertyIdResponse = {
      * @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
      */
     updatedAt: string;
+    isFavourited: boolean;
   };
 };
 

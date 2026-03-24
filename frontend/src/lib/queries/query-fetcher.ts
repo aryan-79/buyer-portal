@@ -1,7 +1,6 @@
 import { env } from '../env';
+import { getServerCookies } from '../utils';
 import type { QueryContext } from './query-context';
-
-const TOKEN_INVALID_MESSAGE = 'Invalid or expired token';
 
 const isServer = typeof window === 'undefined';
 
@@ -20,12 +19,12 @@ export type QueryFetcherOptions<TBody, THeaders, TQueryParams, TPathParams> = {
 } & QueryContext['fetcherOptions'];
 
 export async function queryFetch<
-  TData,
-  TError,
-  TBody extends {} | FormData | undefined | null,
-  THeaders extends {},
-  TQueryParams extends {},
-  TPathParams extends {},
+TData,
+TError,
+TBody extends {} | FormData | undefined | null,
+THeaders extends {},
+TQueryParams extends {},
+TPathParams extends {},
 >({
   url,
   method,
@@ -37,9 +36,12 @@ export async function queryFetch<
 }: QueryFetcherOptions<TBody, THeaders, TQueryParams, TPathParams>): Promise<TData> {
   let error: TError;
   try {
+    const serverCookies = getServerCookies();
+
     const requestHeaders: HeadersInit = {
       'Content-Type': 'application/json',
       ...headers,
+      ...(isServer && serverCookies ? { cookie: serverCookies } : {}),
     };
 
     /**
@@ -57,7 +59,9 @@ export async function queryFetch<
       method: method.toUpperCase(),
       body: body ? (body instanceof FormData ? body : JSON.stringify(body)) : undefined,
       headers: requestHeaders,
+      credentials: 'include'
     });
+
     if (!response.ok) {
       try {
         const payload = await response.json();
@@ -88,22 +92,6 @@ export async function queryFetch<
     };
 
     throw errorObject;
-  }
-
-  if (error) {
-    const e = error as any;
-    if (!url.startsWith('/auth')) {
-      if (e.status) {
-        if (e.status === 403 && e.message === TOKEN_INVALID_MESSAGE) {
-          const refreshUrl = new URL('/auth/refresh', baseUrl);
-          await fetch(refreshUrl.href, {
-            signal,
-            method: 'GET',
-            credentials: 'include',
-          });
-        }
-      }
-    }
   }
 
   throw error;

@@ -56,8 +56,9 @@ app.get('/session', sessionRouteSpec, async (c) => {
   }
 
   const user = await getSessionUser(sessionId);
+  const response = createSuccessResponse(user, 'Session fetched successfully');
 
-  return c.json(user, 200);
+  return c.json(response, 200);
 });
 
 export default app;

@@ -11,7 +11,13 @@ export async function registerProperty(input: CreatePropertyInput) {
   return newProperty;
 }
 
-export async function getProperties({ page, limit, userId, ...query }: PropertyQuery & { userId?: string }) {
+export async function getProperties({
+  page,
+  limit,
+  userId,
+  orderBy = 'createdAt',
+  ...query
+}: PropertyQuery & { userId?: string; orderBy?: 'favourites' | 'createdAt' }) {
   const filters = and(
     query.minPrice ? gt(properties.price, query.minPrice) : undefined,
     query.maxPrice ? lt(properties.price, query.maxPrice) : undefined,
@@ -42,7 +48,7 @@ export async function getProperties({ page, limit, userId, ...query }: PropertyQ
       )`.as('is_favourited')
         : sql<boolean>`false`.as('is_favourited'),
     },
-    orderBy: desc(properties.favouriteCount),
+    orderBy: desc(orderBy === 'favourites' ? properties.favouriteCount : properties.listedAt),
     offset: getOffset(page, limit),
     limit,
   });
@@ -144,6 +150,9 @@ export async function getFavourites(userId: string, { page, limit, ...query }: P
         favouriteCount: properties.favouriteCount,
         listedAt: properties.listedAt,
         updatedAt: properties.updatedAt,
+        isFavourited: sql<boolean>`true`.as('is_favourited'),
+        coverImage: properties.coverImage,
+        images: properties.images,
       },
     })
     .from(favourites)

@@ -50,6 +50,14 @@ export const propertyResponseSchema = createPropertySchema.extend({
 
 export const getPropertiesSchema = createPaginatedSuccessReponseSchema(z.array(propertyResponseSchema), 'properties');
 
+export const favouritedPropertySchema = z.object({
+  id: z.uuid(),
+  favouritedAt: z.iso.date(),
+  property: propertyResponseSchema,
+});
+
+export const getFavouritesSchema = createPaginatedSuccessReponseSchema(z.array(favouritedPropertySchema), 'favourites');
+
 export const addFavouriteResponseSchema = z.object({
   propertyId: z.uuid(),
   favouritedAt: z.iso.datetime(),
