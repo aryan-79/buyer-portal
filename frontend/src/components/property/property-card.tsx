@@ -1,4 +1,4 @@
-import { BathtubIcon, BedIcon, CookingPotIcon, HeartIcon } from '@phosphor-icons/react';
+import { BathtubIcon, BedIcon, BuildingOfficeIcon, CookingPotIcon, HeartIcon } from '@phosphor-icons/react';
 import { Link } from '@tanstack/react-router';
 import { defaultMutationOptions } from '@/lib/mutaiton-options';
 import {
@@ -10,6 +10,7 @@ import { cn, parsePrice } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Skeleton } from '../ui/skeleton';
+import { Empty } from '../ui/empty';
 
 type PropertyCardProps = {
   property: GetPropertiesByPropertyIdResponse['data'];
@@ -40,7 +41,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   ];
 
   return (
-    <Card className='rounded-lg pt-0'>
+    <Card className='rounded-md pt-0'>
       <div className='relative'>
         <Link to='/properties/$propertyId' params={{ propertyId: property.id }}>
           <img src={property.coverImage} alt={property.title} className='h-48 w-full object-cover' />
@@ -57,7 +58,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           <div>
             <h3 className='font-semibold text-muted-foreground md:text-xl lg:text-2xl'>{property.title}</h3>
 
-            <p className='font-bold text-primary md:text-xl lg:text-2xl'>
+            <p className='font-bold text-primary md:text-xl lg:text-2xl tracking-tighter'>
               {parsePrice(property.price, {
                 currency: property.currency,
               })}
@@ -151,7 +152,7 @@ function FavouriteButton({
 
 export function PropertyCardSkeleton() {
   return (
-    <Card className='rounded-lg pt-0'>
+    <Card className='rounded-md pt-0'>
       <div className='relative'>
         <Skeleton className='h-48 w-full' />
       </div>
@@ -168,5 +169,29 @@ export function PropertyCardSkeleton() {
         </div>
       </div>
     </Card>
+  );
+}
+
+export function PropertiesEmpty({ isFavourite }: { isFavourite?: boolean }) {
+  const title = isFavourite ? 'Your favourite properties will appear here.' : 'No properties listed here.';
+  const description = isFavourite
+    ? 'Explore properties and add them to your favourites list.'
+    : 'Listed properties will appear here';
+
+  return (
+    <Empty
+      icon={isFavourite ? HeartIcon : BuildingOfficeIcon}
+      iconProps={{
+        size: 60,
+      }}
+      title={title}
+      description={description}
+    >
+      {isFavourite && (
+        <Button render={<Link to='/' />} nativeButton={false}>
+          Explore
+        </Button>
+      )}
+    </Empty>
   );
 }

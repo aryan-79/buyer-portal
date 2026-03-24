@@ -7,9 +7,12 @@ import type { QueryClient } from '@tanstack/react-query';
 import TanStackQueryProvider from '@/integrations/tanstack-query/provider';
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
 import { Toaster } from 'sonner';
+import type { GetAuthSessionResponse } from '@/lib/queries/query-components';
+import { getSession } from '@/lib/utils';
 
 interface MyRouterContext {
   queryClient: QueryClient;
+  session?: GetAuthSessionResponse['data'] | null;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
@@ -34,6 +37,14 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     ],
   }),
   shellComponent: RootDocument,
+  beforeLoad: async () => {
+    try {
+      const data = await getSession({});
+      return { session: data.data };
+    } catch {
+      return { session: null };
+    }
+  },
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {

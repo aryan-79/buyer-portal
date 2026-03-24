@@ -9,15 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as LayoutRouteRouteImport } from './routes/_layout/route'
 import { Route as PropertiesIndexRouteImport } from './routes/properties/index'
+import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as PropertiesPropertyIdRouteImport } from './routes/properties/$propertyId'
+import { Route as LayoutProtectedRouteImport } from './routes/_layout/_protected'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
+import { Route as LayoutProtectedTestRouteImport } from './routes/_layout/_protected/test'
+import { Route as LayoutProtectedFavouritesRouteImport } from './routes/_layout/_protected/favourites'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const LayoutRouteRoute = LayoutRouteRouteImport.update({
+  id: '/_layout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PropertiesIndexRoute = PropertiesIndexRouteImport.update({
@@ -25,10 +28,19 @@ const PropertiesIndexRoute = PropertiesIndexRouteImport.update({
   path: '/properties/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LayoutIndexRoute = LayoutIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LayoutRouteRoute,
+} as any)
 const PropertiesPropertyIdRoute = PropertiesPropertyIdRouteImport.update({
   id: '/properties/$propertyId',
   path: '/properties/$propertyId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const LayoutProtectedRoute = LayoutProtectedRouteImport.update({
+  id: '/_protected',
+  getParentRoute: () => LayoutRouteRoute,
 } as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
   id: '/_auth/signup',
@@ -40,28 +52,47 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LayoutProtectedTestRoute = LayoutProtectedTestRouteImport.update({
+  id: '/test',
+  path: '/test',
+  getParentRoute: () => LayoutProtectedRoute,
+} as any)
+const LayoutProtectedFavouritesRoute =
+  LayoutProtectedFavouritesRouteImport.update({
+    id: '/favourites',
+    path: '/favourites',
+    getParentRoute: () => LayoutProtectedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof LayoutIndexRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/properties/$propertyId': typeof PropertiesPropertyIdRoute
   '/properties/': typeof PropertiesIndexRoute
+  '/favourites': typeof LayoutProtectedFavouritesRoute
+  '/test': typeof LayoutProtectedTestRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
+  '/': typeof LayoutIndexRoute
   '/properties/$propertyId': typeof PropertiesPropertyIdRoute
   '/properties': typeof PropertiesIndexRoute
+  '/favourites': typeof LayoutProtectedFavouritesRoute
+  '/test': typeof LayoutProtectedTestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_layout': typeof LayoutRouteRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/signup': typeof AuthSignupRoute
+  '/_layout/_protected': typeof LayoutProtectedRouteWithChildren
   '/properties/$propertyId': typeof PropertiesPropertyIdRoute
+  '/_layout/': typeof LayoutIndexRoute
   '/properties/': typeof PropertiesIndexRoute
+  '/_layout/_protected/favourites': typeof LayoutProtectedFavouritesRoute
+  '/_layout/_protected/test': typeof LayoutProtectedTestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -71,19 +102,32 @@ export interface FileRouteTypes {
     | '/signup'
     | '/properties/$propertyId'
     | '/properties/'
+    | '/favourites'
+    | '/test'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/properties/$propertyId' | '/properties'
+  to:
+    | '/login'
+    | '/signup'
+    | '/'
+    | '/properties/$propertyId'
+    | '/properties'
+    | '/favourites'
+    | '/test'
   id:
     | '__root__'
-    | '/'
+    | '/_layout'
     | '/_auth/login'
     | '/_auth/signup'
+    | '/_layout/_protected'
     | '/properties/$propertyId'
+    | '/_layout/'
     | '/properties/'
+    | '/_layout/_protected/favourites'
+    | '/_layout/_protected/test'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  LayoutRouteRoute: typeof LayoutRouteRouteWithChildren
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
   PropertiesPropertyIdRoute: typeof PropertiesPropertyIdRoute
@@ -92,11 +136,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
+    '/_layout': {
+      id: '/_layout'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof LayoutRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/properties/': {
@@ -106,12 +150,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PropertiesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_layout/': {
+      id: '/_layout/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof LayoutIndexRouteImport
+      parentRoute: typeof LayoutRouteRoute
+    }
     '/properties/$propertyId': {
       id: '/properties/$propertyId'
       path: '/properties/$propertyId'
       fullPath: '/properties/$propertyId'
       preLoaderRoute: typeof PropertiesPropertyIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_layout/_protected': {
+      id: '/_layout/_protected'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof LayoutProtectedRouteImport
+      parentRoute: typeof LayoutRouteRoute
     }
     '/_auth/signup': {
       id: '/_auth/signup'
@@ -127,11 +185,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_layout/_protected/test': {
+      id: '/_layout/_protected/test'
+      path: '/test'
+      fullPath: '/test'
+      preLoaderRoute: typeof LayoutProtectedTestRouteImport
+      parentRoute: typeof LayoutProtectedRoute
+    }
+    '/_layout/_protected/favourites': {
+      id: '/_layout/_protected/favourites'
+      path: '/favourites'
+      fullPath: '/favourites'
+      preLoaderRoute: typeof LayoutProtectedFavouritesRouteImport
+      parentRoute: typeof LayoutProtectedRoute
+    }
   }
 }
 
+interface LayoutProtectedRouteChildren {
+  LayoutProtectedFavouritesRoute: typeof LayoutProtectedFavouritesRoute
+  LayoutProtectedTestRoute: typeof LayoutProtectedTestRoute
+}
+
+const LayoutProtectedRouteChildren: LayoutProtectedRouteChildren = {
+  LayoutProtectedFavouritesRoute: LayoutProtectedFavouritesRoute,
+  LayoutProtectedTestRoute: LayoutProtectedTestRoute,
+}
+
+const LayoutProtectedRouteWithChildren = LayoutProtectedRoute._addFileChildren(
+  LayoutProtectedRouteChildren,
+)
+
+interface LayoutRouteRouteChildren {
+  LayoutProtectedRoute: typeof LayoutProtectedRouteWithChildren
+  LayoutIndexRoute: typeof LayoutIndexRoute
+}
+
+const LayoutRouteRouteChildren: LayoutRouteRouteChildren = {
+  LayoutProtectedRoute: LayoutProtectedRouteWithChildren,
+  LayoutIndexRoute: LayoutIndexRoute,
+}
+
+const LayoutRouteRouteWithChildren = LayoutRouteRoute._addFileChildren(
+  LayoutRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  LayoutRouteRoute: LayoutRouteRouteWithChildren,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
   PropertiesPropertyIdRoute: PropertiesPropertyIdRoute,
