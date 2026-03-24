@@ -2,7 +2,8 @@ import { defineConfig } from 'tsup';
 
 export default defineConfig({
   entry: ['./src/index.ts'],
-  splitting: false,
+  splitting: true,
+  format: ['esm'],
   sourcemap: false,
   dts: false,
   minify: true,

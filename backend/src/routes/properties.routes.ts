@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import {
   addFavouriteRouteSpec,
+  deletePropertyByIdRouteSpec,
   getFavouritesRouteSpec,
   getPropertiesRouteSpec,
   getPropertyByIdRouteSpec,
@@ -12,6 +13,7 @@ import { createPropertySchema, propertyQuerySchema } from '@/lib/schemas/propert
 import { createPaginatedSuccessResponse, createSuccessResponse } from '@/lib/utils/response';
 import { validator } from '@/lib/utils/validator';
 import {
+  deleteProperty,
   getFavourites,
   getProperties,
   getPropertyById,
@@ -118,5 +120,23 @@ app.get('/:propertyId', getPropertyByIdRouteSpec, async (c) => {
 
   return c.json(response, 200);
 });
+
+app.delete(
+  '/:propertyId',
+  deletePropertyByIdRouteSpec,
+  authorizationMiddleware({
+    requireAuthentication: true,
+    roles: ['admin'],
+  }),
+  async (c) => {
+    const propertyId = c.req.param('propertyId');
+
+    const deletedProperty = await deleteProperty(propertyId);
+
+    const response = createSuccessResponse(deletedProperty, 'Property deleted successfully');
+
+    return c.json(response, 200);
+  },
+);
 
 export default app;

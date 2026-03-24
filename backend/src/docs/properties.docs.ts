@@ -59,6 +59,18 @@ export const getPropertyByIdRouteSpec = describeRoute({
   },
 });
 
+export const deletePropertyByIdRouteSpec = describeRoute({
+  tags,
+  description: 'Delete property by ID',
+  responses: {
+    200: responseSpec('success', {
+      schema: propertyResponseSchema,
+      description: 'Property deleted successfully',
+    }),
+    ...errorSpecs,
+  },
+});
+
 export const addFavouriteRouteSpec = describeRoute({
   tags,
   description: 'Add property to favourites',

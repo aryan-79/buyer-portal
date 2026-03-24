@@ -118,6 +118,11 @@ export async function getPropertyById(propertyId: string) {
   return property;
 }
 
+export async function deleteProperty(propertyId: string) {
+  const [deletedProperty] = await db.delete(properties).where(eq(properties.id, propertyId)).returning();
+  return deletedProperty;
+}
+
 export async function getFavourites(userId: string, { page, limit, ...query }: PropertyQuery) {
   const filters = and(
     eq(favourites.userId, userId),
