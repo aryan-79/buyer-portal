@@ -161,7 +161,12 @@ export default function AddPropertyForm() {
                 <FieldLabel htmlFor={field.name} className='uppercase'>
                   Currency
                 </FieldLabel>
-                <Select items={currencyOptions}>
+                <Select
+                  items={currencyOptions}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder='Select currency' />
                   </SelectTrigger>
