@@ -28,3 +28,5 @@
 - View all favourites at `/favourites`
 
 **NOTE:** Visit /admin while logged in as admin to add property
+
+**NOTE** Infinite scroll is implemented for viewing list of properties and favorites
